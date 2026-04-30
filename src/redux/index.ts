@@ -1,0 +1,49 @@
+/**
+ * Redux Store and Hooks Export
+ * Import your Redux dependencies from this file
+ */
+
+// Store
+export { store } from './store';
+export type { AppDispatch, RootState } from './store';
+
+// Hooks
+export {
+  useAppDispatch,
+  useAppSelector,
+  selectAuth,
+  selectAuthUser,
+  selectAuthToken,
+  selectIsAuthenticated,
+  selectAuthLoading,
+  selectAuthError,
+  selectUsers,
+  selectSelectedUser,
+  selectUsersLoading,
+  selectUsersError,
+  selectUsersTotal,
+  selectUsersPage,
+  selectUsersLimit,
+  selectSearchQuery,
+  selectIsSearching,
+  selectTotalPages,
+  selectHasNextPage,
+  selectHasPrevPage,
+} from './hooks';
+
+// Auth
+export { default as authReducer } from './auth/authSlice';
+export { authSaga } from './auth/authSaga';
+export { authActions } from './auth/authActions';
+export type { AuthState, LoginPayload, AuthResponse } from './auth/authTypes';
+
+// Users
+export { default as usersReducer } from './users/usersSlice';
+export { usersSaga } from './users/usersSaga';
+export { usersActions } from './users/usersActions';
+export type {
+  UsersState,
+  FetchUsersPayload,
+  SearchUsersPayload,
+  FetchUserByIdPayload,
+} from './users/usersTypes';
