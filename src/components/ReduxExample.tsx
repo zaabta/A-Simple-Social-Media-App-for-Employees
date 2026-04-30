@@ -1,5 +1,3 @@
-import React from 'react';
-
 /**
  * Example component showing Redux integration
  * This demonstrates:

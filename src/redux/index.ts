@@ -38,12 +38,12 @@ export { authActions } from './auth/authActions';
 export type { AuthState, LoginPayload, AuthResponse } from './auth/authTypes';
 
 // Users
-export { default as usersReducer } from './users/usersSlice';
-export { usersSaga } from './users/usersSaga';
-export { usersActions } from './users/usersActions';
+export { default as usersReducer } from './users/slice';
+export { usersSaga } from './users/saga';
+export { usersActions } from './users/actions';
 export type {
   UsersState,
   FetchUsersPayload,
   SearchUsersPayload,
   FetchUserByIdPayload,
-} from './users/usersTypes';
+} from './users/types';

@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import Link from 'next/link';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import {
   selectSelectedUser,
   selectUsersLoading,
   selectUsersError,
 } from '@/redux/hooks';
-import { usersActions } from '@/redux/users/usersActions';
+import { usersActions } from '@/redux/users/actions';
 import { authActions } from '@/redux/auth/authActions';
 
 interface UserDetailPageProps {
@@ -36,28 +35,6 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <Link
-                href="/users"
-                className="text-blue-500 hover:text-blue-700 font-semibold"
-              >
-                ← Back to Users
-              </Link>
-              <h1 className="text-3xl font-bold text-gray-900 mt-2">User Details</h1>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
 
       {/* Main Content */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -82,9 +59,9 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
             <div className="px-6 py-8">
               {/* User Avatar and Name */}
               <div className="flex items-center mb-8">
-                {user.avatar && (
+                {user.image && (
                   <img
-                    src={user.avatar}
+                    src={user.image}
                     alt={`${user.firstName} ${user.lastName}`}
                     className="w-24 h-24 rounded-full mr-6 object-cover"
                   />
@@ -162,7 +139,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
                       <label className="block text-sm font-semibold text-gray-700 mb-1">
                         ZIP Code
                       </label>
-                      <p className="text-gray-900">{user.address.zip || 'N/A'}</p>
+                      <p className="text-gray-900">{user.address.city || 'N/A'}</p>
                     </div>
                   </>
                 )}

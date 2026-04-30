@@ -1,5 +1,3 @@
-'use client';
-
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 import type { AppDispatch, RootState } from './store';
 
@@ -37,10 +35,11 @@ export const selectUsersPage = (state: RootState) => state.users.page;
 export const selectUsersLimit = (state: RootState) => state.users.limit;
 export const selectSearchQuery = (state: RootState) => state.users.searchQuery;
 export const selectIsSearching = (state: RootState) => state.users.isSearching;
-export const selectSortField = (state: RootState) => state.users.sortField;
-export const selectSortOrder = (state: RootState) => state.users.sortOrder;
-export const selectFilterType = (state: RootState) => state.users.filterType;
-export const selectFilterValue = (state: RootState) => state.users.filterValue;
+export const selectSortOrderByFirstName = (state: RootState) => state.users.sortByFirstNameOrder;
+export const selectSortOrderByAge = (state: RootState) => state.users.sortByAgeOrder;
+export const selectFilters = (state: RootState) => state.users.filters;
+export const selectFilterType = (state: RootState) => null; // Deprecated
+export const selectFilterValue = (state: RootState) => null; // Deprecated
 
 /**
  * Derived selectors

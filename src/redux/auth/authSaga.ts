@@ -11,7 +11,7 @@ import {
 } from './authSlice';
 import type { LoginPayload } from './authTypes';
 
-function* loginSaga(action: PayloadAction<LoginPayload>) {
+function* loginSaga(action: PayloadAction<LoginPayload>): Generator<any, void, any> {
   try {
     const response = yield call(authService.login, action.payload);
     yield put(loginSuccess(response));
@@ -26,7 +26,7 @@ function* loginSaga(action: PayloadAction<LoginPayload>) {
   }
 }
 
-function* logoutSaga() {
+function* logoutSaga(): Generator<any, void, any> {
   try {
     yield call(authService.logout);
     yield put(logoutSuccess());
@@ -42,7 +42,7 @@ function* logoutSaga() {
   }
 }
 
-export function* authSaga() {
+export function* authSaga(): Generator<any, void, any> {
   yield takeLatest(loginRequest.type, loginSaga);
   yield takeLatest(logoutRequest.type, logoutSaga);
 }

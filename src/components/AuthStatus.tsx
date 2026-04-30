@@ -1,6 +1,4 @@
 'use client';
-
-import React from 'react';
 import { useAppDispatch, useAppSelector, selectAuthUser, selectIsAuthenticated } from '@/redux/hooks';
 import { authActions } from '@/redux/auth/authActions';
 

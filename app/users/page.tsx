@@ -1,6 +1,5 @@
 'use client';
-
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   selectIsAuthenticated,
@@ -14,15 +13,17 @@ import {
   selectHasNextPage,
   selectHasPrevPage,
   selectSearchQuery,
-  selectSortField,
-  selectSortOrder,
-  selectFilterType,
-  selectFilterValue,
+  selectUsersTotal,
+  selectUsersLimit,
+  selectSortOrderByFirstName,
+  selectSortOrderByAge,
 } from '@/redux/hooks';
-import { usersActions } from '@/redux/users/usersActions';
-import { calculateSkip } from '@/utils/helpers';
-import type { FilterOptions } from '@/redux/users/usersTypes';
-import { usersService } from '@/redux/users/usersService';
+import { usersActions } from '@/redux/users/actions';
+import { calculateSkip, toggleSortOrder } from '@/utils';
+import type { FilterOptions } from '@/redux/users/types';
+import { usersService } from '@/redux/users/service';
+import { DropDown, UserCard } from '@/components';
+import { DEFAULT_PAGE_SIZE, FILTER_TYPE, SORT_ORDERS } from '@/constants';
 
 export default function UsersPage() {
   const dispatch = useAppDispatch();
@@ -33,11 +34,12 @@ export default function UsersPage() {
   const totalPages = useAppSelector(selectTotalPages);
   const hasNextPage = useAppSelector(selectHasNextPage);
   const hasPrevPage = useAppSelector(selectHasPrevPage);
+  const total = useAppSelector(selectUsersTotal);
+  const limit = useAppSelector(selectUsersLimit);
   const searchQuery = useAppSelector(selectSearchQuery);
-  const sortField = useAppSelector(selectSortField);
-  const sortOrder = useAppSelector(selectSortOrder);
-  const filterType = useAppSelector(selectFilterType);
-  const filterValue = useAppSelector(selectFilterValue);
+  const sortByFirstNameOrder = useAppSelector(selectSortOrderByFirstName);
+  const sortByAgeOrder = useAppSelector(selectSortOrderByAge);
+  const filters = useAppSelector(state => state.users.filters);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
   const [searchInput, setSearchInput] = useState('');
@@ -60,49 +62,36 @@ export default function UsersPage() {
     loadFilterOptions();
   }, []);
 
-  // Fetch users on page change, search, filter, or sort
+  // Single useEffect to handle all fetching based on state changes
   useEffect(() => {
-    const skip = calculateSkip(page, 10);
-
-    if (searchQuery) {
-      dispatch(usersActions.searchUsers({ query: searchQuery, skip, limit: 10 }));
-    } else if (filterType && filterValue) {
-      dispatch(
-        usersActions.filterUsers({
-          type: filterType,
-          value: filterValue,
-          skip,
-          limit: 10,
-        })
-      );
-    } else if (sortField && sortOrder) {
-      dispatch(usersActions.sortUsers({ field: sortField as 'firstName' | 'age' }));
-    } else {
-      dispatch(usersActions.fetchUsers({ skip, limit: 10 }));
-    }
-  }, [dispatch, page, searchQuery, filterType, filterValue, sortField, sortOrder]);
+    const skip = calculateSkip(page, DEFAULT_PAGE_SIZE);
+    dispatch(usersActions.fetchUsers({ skip, limit: DEFAULT_PAGE_SIZE }));
+  }, [dispatch, page, searchQuery, filters, sortByFirstNameOrder, sortByAgeOrder]);
 
   const handleSearch = (query: string) => {
-    if (query.trim()) {
-      setSearchInput(query);
-      dispatch(usersActions.searchUsers({ query, limit: 10 }));
-    } else {
-      setSearchInput('');
+    setSearchInput(query);
+    if (!query.trim()) {
       dispatch(usersActions.resetSearch());
-      dispatch(usersActions.fetchUsers({ skip: 0, limit: 10 }));
+    } else {
+      dispatch(usersActions.searchUsers({ query, skip: 0, limit: DEFAULT_PAGE_SIZE }));
     }
   };
 
-  const handleSort = (field: 'firstName' | 'age') => {
-    dispatch(usersActions.sortUsers({ field }));
+  const handleFilter = (type: FILTER_TYPE, value: string) => {
+    dispatch(usersActions.filterUsers({ type, value, skip: 0, limit: DEFAULT_PAGE_SIZE }));
   };
 
-  const handleFilter = (type: 'city' | 'job' | 'gender', value: string) => {
-    if (value) {
-      dispatch(usersActions.filterUsers({ type, value, skip: 0, limit: 10 }));
+  const handleSort = (sortField: 'name' | 'age') => {
+    if (sortField === 'name') {
+      dispatch(usersActions.sortUsers({ 
+        sortByFirstNameOrder: toggleSortOrder(sortByFirstNameOrder), 
+        sortByAgeOrder 
+      }));
     } else {
-      dispatch(usersActions.clearFilter());
-      dispatch(usersActions.fetchUsers({ skip: 0, limit: 10 }));
+      dispatch(usersActions.sortUsers({ 
+        sortByAgeOrder: toggleSortOrder(sortByAgeOrder), 
+        sortByFirstNameOrder 
+      }));
     }
   };
 
@@ -118,177 +107,179 @@ export default function UsersPage() {
     }
   };
 
-  const getSortButtonClass = (field: 'firstName' | 'age') => {
-    const baseClass = 'px-4 py-2 rounded-lg border text-sm font-medium transition-colors ';
-    if (sortField === field) {
-      if (sortOrder === 'asc') {
-        return baseClass + 'bg-blue-500 text-white border-blue-500';
-      } else if (sortOrder === 'desc') {
-        return baseClass + 'bg-blue-700 text-white border-blue-700';
-      }
+  const getPageNumbers = (): (number | string)[] => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
-    return baseClass + 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200';
+
+    const pages: (number | string)[] = [1];
+
+    const rangeStart = Math.max(2, page - 1);
+    const rangeEnd = Math.min(totalPages - 1, page + 1);
+
+    if (rangeStart > 2) pages.push('ellipsis');
+
+    for (let i = rangeStart; i <= rangeEnd; i++) {
+      pages.push(i);
+    }
+
+    if (rangeEnd < totalPages - 1) pages.push('ellipsis');
+
+    pages.push(totalPages);
+    return pages;
   };
+
+  const startIndex = total === 0 ? 0 : (page - 1) * limit + 1;
+  const endIndex = Math.min(page * limit, total);
 
   return (
     <div className="min-h-screen bg-gray-50">
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {isAuthenticated && 
-        <div className="flex flex-col gap-4 mb-6">
-          <div className="flex gap-4 items-center justify-left bg-white p-4 rounded-lg shadow">
-            <button
-              onClick={() => dispatch(usersActions.sortUsers({ field: 'firstName' }))}
-              className="bg-gray-100 hover:bg-gray-200 capitalize text-sm text-gray-700 border border-gray-300 py-2 px-4 rounded-lg">
+        {isAuthenticated &&
+          <div className="flex flex-col gap-4 mb-6">
+            <div className="flex gap-4 items-center justify-left bg-white p-4 rounded-lg shadow">
+              <button
+                onClick={() => handleSort('name')}
+                className="flex gap-2 bg-gray-100 hover:bg-gray-200 capitalize text-sm text-gray-700 border border-gray-300 py-2 px-4 rounded-lg">
                 sort by first name
+                {sortByFirstNameOrder && <img src={`/assets/${sortByFirstNameOrder === SORT_ORDERS.ASC ? 'up' : 'down'}-arrow.svg`} alt="Sort" className="w-4 h-4 inline-block ml-1" />}
               </button>
               <button
-                onClick={() => dispatch(usersActions.sortUsers({ field: 'lastName' }))}
-                className="bg-gray-100 hover:bg-gray-200 capitalize text-sm text-gray-700 border border-gray-300 py-2 px-4 rounded-lg"
+                onClick={() => handleSort('age')}
+                className="flex gap-2 bg-gray-100 hover:bg-gray-200 capitalize text-sm text-gray-700 border border-gray-300 py-2 px-4 rounded-lg"
               >
-                sort by last name
+                sort by age
+                {sortByAgeOrder && <img src={`/assets/${sortByAgeOrder === SORT_ORDERS.ASC ? 'up' : 'down'}-arrow.svg`} alt="Sort" className="w-4 h-4 inline-block ml-1" />}
               </button>
-          </div>
-          <div className="flex items-center justify-left bg-white p-4 rounded-lg shadow">
-            <select value='city' className="border border-gray-300 rounded-lg bg-white text-sm text-gray-700 py-2 px-4 focus:outline-none"
-              onChange={(e) => dispatch(authActions.setRole(e.target.value))}
-            >
-              <option value="">Select Role</option>
-              <option value="admin">Admin</option>
-              <option value="user">User</option>
-            </select>
-          </div>
-          <div className='flex gap-2'>
-            <div className="border border-gray-300 rounded-lg bg-white flex gap-1 items-center w-full">
-              <img src="@/../public/assets/search-icon.svg" alt="Search" className="w-4 h-4 ml-2" />
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search"
-                className="w-full px-4 py-1 text-black text-sm border border-none rounded-lg focus:outline-none"
+            </div>
+            <div className="flex items-center justify-left gap-4 bg-white p-4 rounded-lg shadow">
+              <DropDown
+                label="City"
+                options={filterOptions.cities}
+                value={filters.city}
+                onSelect={(value) => handleFilter(FILTER_TYPE.CITY, value)}
+              />
+              <DropDown
+                label="Title"
+                options={filterOptions.jobTitles}
+                value={filters.job}
+                onSelect={(value) => handleFilter(FILTER_TYPE.JOB, value)}
+              />
+              <DropDown
+                label="Gender"
+                options={filterOptions.genders}
+                value={filters.gender}
+                onSelect={(value) => handleFilter(FILTER_TYPE.GENDER, value)}
               />
             </div>
-            <button
-              onClick={() => handleSearch(searchInput)}
-              className={`bg-blue-${searchInput ? '500' : '300'} hover:bg-blue-600 text-white py-2 px-4 rounded-md`}
-            >
-              Search
-            </button>
+            <div className='flex gap-2'>
+              <div className="border border-gray-300 rounded-lg bg-white flex gap-1 items-center w-full px-2">
+                <img src="/assets/search.svg" alt="Search" className="w-5 h-5" />
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Search"
+                  className="w-full px-0 py-1 text-black text-sm border border-none rounded-lg focus:outline-none"
+                />
+              </div>
+              <button
+                onClick={() => handleSearch(searchInput)}
+                disabled={loading || !searchInput.trim()}
+                className={`bg-blue-${searchInput.trim() ? '600' : '100'} w-25 flex gap-x-0.5 items-center justify-left text-white text-sm py-2 px-2 rounded-md`}
+              >
+                <img src="/assets/search.svg" alt="Search" className="w-5 h-5" />
+                Search
+              </button>
+            </div>
+          </div>}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {error}
           </div>
-        </div>}
+        )}
 
-            {/* Error Message */}
-            {error && (
-              <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                {error}
-              </div>
-            )}
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="text-lg text-gray-600">Loading users...</div>
+          </div>
+        ) : users.length === 0 ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="text-lg text-gray-600">No users found</div>
+          </div>
+        ) : (
+          <>
+            {/* User Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {users.map((user) => (
+                <Link
+                  key={user.id}
+                  href={`/users/${user.id}`}
+                >
+                  <UserCard user={{
+                    name: `${user.firstName} ${user.lastName}`,
+                    age: user.age || 0,
+                    gender: user.gender,
+                    avatar: user.image,
+                    email: user.email,
+                    username: user.username,
+                    city: user.address?.city,
+                  }} />
+                </Link>
+              ))}
+            </div>
 
-            {/* Loading State */}
-            {loading ? (
-              <div className="flex justify-center items-center py-12">
-                <div className="text-lg text-gray-600">Loading users...</div>
-              </div>
-            ) : users.length === 0 ? (
-              <div className="flex justify-center items-center py-12">
-                <div className="text-lg text-gray-600">No users found</div>
-              </div>
-            ) : (
-              <>
-                {/* User Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                  {users.map((user) => (
-                    <Link
-                      key={user.id}
-                      href={`/users/${user.id}`}
-                      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 border border-gray-200 hover:border-blue-300"
+            {/* Pagination */}
+            <div className="flex gap-4 justify-end items-center mt-6">
+              <p className="text-sm text-gray-500">
+                {total === 0 ? '0' : `${startIndex}–${endIndex}`} of {total} results
+              </p>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handlePrevPage}
+                  className={`px-3 py-1 rounded-md text-sm ${loading || !hasPrevPage
+                    ? "bg-blue-600 text-white cursor-not-allowed"
+                    : "bg-white border text-gray-600 hover:bg-gray-50"
+                    }`}
+                >
+                  <img src="/assets/left-arrow.svg" alt="Previous" className="w-4 h-4" />
+                </button>
+                {getPageNumbers().map((num, index) => (
+                  num === 'ellipsis' ? (
+                    <span key={`ellipsis-${index}`} className="px-2 py-1 text-sm text-gray-500">
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={num}
+                      onClick={() => dispatch(usersActions.setPage(num as number))}
+                      className={`px-3 py-1 rounded-md text-sm ${num === page
+                        ? "bg-blue-600 text-white"
+                        : "bg-white border text-gray-600 hover:bg-gray-50"
+                        }`}
                     >
-                      <div className="space-y-4">
-                        {/* Name */}
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900">
-                            {user.firstName} {user.lastName}
-                          </h3>
-                        </div>
-
-                        {/* Age and Gender */}
-                        <div className="flex gap-4">
-                          {user.age && (
-                            <div>
-                              <p className="text-xs font-semibold text-gray-500 uppercase">Age</p>
-                              <p className="text-sm text-gray-700">{user.age}</p>
-                            </div>
-                          )}
-                          {user.gender && (
-                            <div>
-                              <p className="text-xs font-semibold text-gray-500 uppercase">Gender</p>
-                              <p className="text-sm text-gray-700 capitalize">{user.gender}</p>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Username */}
-                        <div>
-                          <p className="text-xs font-semibold text-gray-500 uppercase">Username</p>
-                          <p className="text-sm text-gray-700">@{user.username}</p>
-                        </div>
-
-                        {/* Email */}
-                        <div>
-                          <p className="text-xs font-semibold text-gray-500 uppercase">Email</p>
-                          <p className="text-sm text-gray-700 truncate">{user.email}</p>
-                        </div>
-
-                        {/* City */}
-                        {user.address?.city && (
-                          <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase">City</p>
-                            <p className="text-sm text-gray-700">{user.address.city}</p>
-                          </div>
-                        )}
-
-                        {/* Job Title */}
-                        {user.job?.title && (
-                          <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase">Job Title</p>
-                            <p className="text-sm text-gray-700">{user.job.title}</p>
-                          </div>
-                        )}
-
-                        {/* View Button */}
-                        <div className="pt-4 border-t border-gray-200">
-                          <span className="text-blue-600 hover:text-blue-800 font-semibold text-sm">
-                            View Details →
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                <div className="flex justify-between items-center mt-8">
-                  <button
-                    onClick={handlePrevPage}
-                    disabled={!hasPrevPage || loading}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Previous
-                  </button>
-                  <span className="text-gray-700 font-medium">
-                    Page {page} of {totalPages}
-                  </span>
-                  <button
-                    onClick={handleNextPage}
-                    disabled={!hasNextPage || loading}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Next
-                  </button>
-                </div>
-              </>
-            )}
+                      {num}
+                    </button>
+                  )
+                ))}
+                <button
+                  onClick={handleNextPage}
+                  className={`px-3 py-1 rounded-md text-sm ${loading || !hasNextPage
+                    ? "bg-blue-600 text-white cursor-not-allowed"
+                    : "bg-white border text-gray-600 hover:bg-gray-50"
+                    }`}
+                >
+                  <img src="/assets/right-arrow.svg" alt="Next" className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </main>
     </div>
   );
