@@ -10,6 +10,7 @@ export type UserCardProps = {
     email?: string;
     username?: string;
     city?: string;
+    job?: string;
 };
 
 export default function UserCard({ user }: { user: UserCardProps }) {
@@ -24,10 +25,13 @@ export default function UserCard({ user }: { user: UserCardProps }) {
                     <h3 className="font-semibold text-gray-800">{user.name}</h3>
                     <Badge  text={`Age: ${user.age}`} />
                 </div>
-                {isAuthenticated && <span className="text-sm text-gray-500">@{user.username}</span>}
-                {isAuthenticated && <span className="text-sm text-gray-500">{user.email}</span>}
+                {isAuthenticated && <span className="text-xs text-gray-500">@{user.username}</span>}
+                {isAuthenticated && <span className="text-xs text-gray-500">{user.email}</span>}
                 {isAuthenticated && <Badge text={user.city || "Unknown City"} />}
-                <Badge className="capitalize font-semibold " text={String(user.gender)} color={user.gender === GENDER.MALE ? BadgeColor.BLUE : BadgeColor.PINK} />
+                <div className="flex items-center justify-between">
+                    <Badge className="capitalize font-semibold " text={String(user.gender)} color={user.gender === GENDER.MALE ? BadgeColor.BLUE : BadgeColor.PINK} />
+                    {isAuthenticated && user.job && <span className="text-xs text-gray-500">{user.job}</span>}
+                </div>
             </div>
         </div>
     );

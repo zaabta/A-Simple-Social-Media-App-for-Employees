@@ -1,5 +1,5 @@
 import { Options } from '@/components/DropDown';
-import { FILTER_TYPE, SORT_ORDERS } from '@/index';
+import { FILTER_TYPE, SORT_FIELDS, SORT_ORDERS } from '@/index';
 import type { PaginationParams, User } from '@/types';
 
 export interface UsersState extends PaginationParams {
@@ -13,8 +13,11 @@ export interface UsersState extends PaginationParams {
   isSearching: boolean;
   sortByFirstNameOrder: SORT_ORDERS | null;
   sortByAgeOrder: SORT_ORDERS | null;
-  filterType: FILTER_TYPE | null;
-  filterValue: string | null;
+  filters: {
+    city: string;
+    job: string;
+    gender: string;
+  };
 }
 
 export interface FetchUsersPayload extends PaginationParams {
@@ -68,5 +71,10 @@ export interface SearchUsersPayload extends PaginationParams {
 export interface UsersResponse extends PaginationParams {
   users: User[];
   total: number;
+}
+
+export interface SortUsersPayload {
+  sortByFirstNameOrder: SORT_ORDERS | null;
+  sortByAgeOrder: SORT_ORDERS | null;
 }
 

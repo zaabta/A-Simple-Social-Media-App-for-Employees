@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { User, UsersResponse } from '@/types';
-import type { UsersState, FetchUsersPayload, SearchUsersPayload, FetchUserByIdPayload, SortUsersPayload, FilterUsersPayload } from './types';
+import type { User } from '@/types';
+import type { UsersState, FetchUsersPayload, SearchUsersPayload, FetchUserByIdPayload, FilterUsersPayload, UsersResponse, SortUsersPayload } from './types';
 import { DEFAULT_PAGE_SIZE, FILTER_TYPE } from '@/constants';
 
 const initialState: UsersState = {
@@ -10,6 +10,7 @@ const initialState: UsersState = {
   error: null,
   total: 0,
   page: 1,
+  skip: 0,
   limit: DEFAULT_PAGE_SIZE,
   searchQuery: '',
   isSearching: false,
@@ -69,6 +70,12 @@ const usersSlice = createSlice({
     searchUsersRequest: (state, action: PayloadAction<SearchUsersPayload>) => {
       state.searchQuery = action.payload.query;
       state.page = 1;
+      // Clear filters when search is applied (API doesn't support combining both)
+      state.filters = {
+        city: '',
+        job: '',
+        gender: '',
+      };
     },
 
     searchUsersSuccess: (state, action: PayloadAction<UsersResponse>) => {
@@ -111,12 +118,19 @@ const usersSlice = createSlice({
     // Filter users
     filterUsersRequest: (state, action: PayloadAction<FilterUsersPayload>) => {
       const { type, value } = action.payload;
-      // Support multi-filter by updating the specific filter type
+      // Clear all filters first (only one filter active at a time)
+      state.filters = {
+        city: '',
+        job: '',
+        gender: '',
+      };
+      // Apply the new filter
       if (type === FILTER_TYPE.CITY) state.filters.city = value;
       if (type === FILTER_TYPE.JOB) state.filters.job = value;
       if (type === FILTER_TYPE.GENDER) state.filters.gender = value;
       state.page = 1;
-      // Do NOT clear searchQuery to allow combining filter + search
+      // Clear search when filter is applied (API doesn't support combining both)
+      state.searchQuery = '';
     },
 
     filterUsersSuccess: (state, action: PayloadAction<UsersResponse>) => {

@@ -62,6 +62,19 @@ export default function UsersPage() {
     loadFilterOptions();
   }, []);
 
+  useEffect(() => {
+    const hasActiveFilter = filters.city || filters.job || filters.gender;
+    if (hasActiveFilter) {
+      setSearchInput('');
+    }
+  }, [filters]);
+
+  useEffect(() => {
+    if (searchQuery && searchInput !== searchQuery) {
+      setSearchInput(searchQuery);
+    }
+  }, [searchQuery]);
+
   // Single useEffect to handle all fetching based on state changes
   useEffect(() => {
     const skip = calculateSkip(page, DEFAULT_PAGE_SIZE);
@@ -228,6 +241,7 @@ export default function UsersPage() {
                     email: user.email,
                     username: user.username,
                     city: user.address?.city,
+                    job: user.company?.title,
                   }} />
                 </Link>
               ))}

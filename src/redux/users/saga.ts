@@ -9,6 +9,8 @@ import {
   fetchUserByIdSuccess,
   fetchUserByIdFailure,
   searchUsersRequest,
+  sortUsersRequest,
+  filterUsersRequest,
 } from './slice';
 import type {
   FetchUsersPayload,
@@ -16,8 +18,6 @@ import type {
 } from './types';
 import type { RootState } from '../store';
 
-
-// 🔥 MAIN WORKER (handles EVERYTHING)
 function* fetchUsersSaga(
   action: PayloadAction<FetchUsersPayload>
 ): Generator<any, void, any> {
@@ -29,11 +29,9 @@ function* fetchUsersSaga(
       searchQuery,
       sortByFirstNameOrder,
       sortByAgeOrder,
-      filterType,
-      filterValue,
+      filters,
     } = state.users;
 
-    // ✅ merge payload with state (payload overrides state)
     const finalPayload: FetchUsersPayload = {
       skip:
         action.payload.skip !== undefined
@@ -56,6 +54,11 @@ function* fetchUsersSaga(
         action.payload.sortByAgeOrder !== undefined
           ? action.payload.sortByAgeOrder
           : sortByAgeOrder,
+
+      filters:
+        action.payload.filters !== undefined
+          ? action.payload.filters
+          : filters,
     };
 
     const response = yield call(usersService.fetchUsers, finalPayload);
@@ -97,6 +100,12 @@ export function* usersSaga(): Generator {
 
   // 🔍 Debounced search
   yield debounce(500, searchUsersRequest.type, fetchUsersSaga);
+
+  // 🎯 Filter users - trigger fetch
+  yield takeLatest(filterUsersRequest.type, fetchUsersSaga);
+
+  // 🔄 Sort users - trigger fetch
+  yield takeLatest(sortUsersRequest.type, fetchUsersSaga);
 
   // 👤 User details
   yield takeLatest(fetchUserByIdRequest.type, fetchUserByIdSaga);
