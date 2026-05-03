@@ -6,7 +6,7 @@ import type {
   PostsResponse,
 } from './types';
 import { capitalize } from '@/utils';
-import { FILTER_TYPE } from '@/index';
+import { FILTER_TYPE, User } from '@/index';
 
 export const usersService = {
   fetchUsers: async (payload: FetchUsersPayload): Promise<UsersResponse> => {
@@ -70,8 +70,8 @@ export const usersService = {
     return response;
   },
 
-  fetchUserById: async (id: number): Promise<UsersResponse> => {
-    return apiClient.get<UsersResponse>(`/users/${id}`);
+  fetchUserById: async (id: number): Promise<User> => {
+    return apiClient.get<User>(`/users/${id}`);
   },
 
   getFilterOptions: async (): Promise<FilterOptions> => {

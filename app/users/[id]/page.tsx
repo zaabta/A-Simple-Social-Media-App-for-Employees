@@ -76,7 +76,7 @@ export default async function UserDetailPage({
   const { user, posts, totalPages } = pageData;
 
   return (<>
-    <UserInfoCard avatar={user.image} firstName={user.firstName} lastName={user.lastName} username={user.username} email={user.email} job={user.company.title} gender={user.gender} />
+    <UserInfoCard avatar={user.image} firstName={user.firstName} lastName={user.lastName} age={user.age} username={user.username} email={user.email} job={user.company.title} gender={user.gender} />
     <div className='flex flex-col gap-4'>
       <h2 className="text-2xl font-bold text-gray-900">
         Posts ({posts.total})
@@ -85,7 +85,7 @@ export default async function UserDetailPage({
         Showing posts {Math.min(posts.skip + posts.limit, posts.total)} of {posts.total}
       </label>
 
-      <div className="space-y-4">
+      <div className="flex flex-col gap-6">
         {posts.posts.map((post) => (
           <Post key={post.id} title={post.title} body={post.body} tags={post.tags} reactions={post.reactions} />
         ))}
