@@ -1,6 +1,6 @@
 import { call, put, takeLatest, delay } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { authService } from './authService';
+import { authService } from './service';
 import {
   loginRequest,
   loginSuccess,
@@ -8,8 +8,8 @@ import {
   logoutRequest,
   logoutSuccess,
   logoutFailure,
-} from './authSlice';
-import type { LoginPayload } from './authTypes';
+} from './slice';
+import type { LoginPayload } from './types';
 
 function* loginSaga(action: PayloadAction<LoginPayload>): Generator<any, void, any> {
   try {

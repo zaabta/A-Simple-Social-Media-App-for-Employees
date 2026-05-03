@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAppDispatch, useAppSelector, selectAuth } from '@/redux/hooks';
-import { authActions } from '@/redux/auth/authActions';
+import { authActions } from '@/redux/auth/actions';
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();

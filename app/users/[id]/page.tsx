@@ -1,153 +1,126 @@
-'use client';
-
-import React, { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import {
-  selectSelectedUser,
-  selectUsersLoading,
-  selectUsersError,
-} from '@/redux/hooks';
-import { usersActions } from '@/redux/users/actions';
-import { authActions } from '@/redux/auth/authActions';
+import Link from 'next/link';
+import { requireAuth } from '@/utils/auth.server';
+import { Post, UserInfoCard } from '@/components';
+import { User } from '@/types';
+import { usersService } from '@/redux/users/service';
+import { PostsResponse } from '@/redux/users/types';
 
 interface UserDetailPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
-export default function UserDetailPage({ params }: UserDetailPageProps) {
-  const [userId, setUserId] = React.useState<number | null>(null);
-  const dispatch = useAppDispatch();
-  const user = useAppSelector(selectSelectedUser);
-  const loading = useAppSelector(selectUsersLoading);
-  const error = useAppSelector(selectUsersError);
+interface PageData {
+  user: User;
+  posts: PostsResponse;
+  currentPage: number;
+  totalPages: number;
+}
 
-  useEffect(() => {
-    params.then((resolvedParams) => {
-      const id = parseInt(resolvedParams.id, 10);
-      setUserId(id);
-      dispatch(usersActions.fetchUserById({ id }));
-    });
-  }, [dispatch, params]);
+async function fetchUserData(userId: number, page: number = 1): Promise<PageData> {
+  const limit = 10;
+  const skip = (page - 1) * limit;
 
-  const handleLogout = () => {
-    dispatch(authActions.logout());
-  };
+  try {
+    const [user, posts] = await Promise.all([
+      usersService.fetchUserById(userId),
+      usersService.getUserPosts(userId, skip, limit),
+    ]);
 
-  return (
-    <div className="min-h-screen bg-gray-50">
+    const totalPages = Math.ceil(posts.total / limit);
 
-      {/* Main Content */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Error Message */}
-        {error && (
-          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            {error}
+    return {
+      user,
+      posts,
+      currentPage: page,
+      totalPages,
+    };
+  } catch (error) {
+    console.error('Failed to fetch user data:', error);
+    throw error;
+  }
+}
+
+export default async function UserDetailPage({
+  params,
+  searchParams,
+}: UserDetailPageProps) {
+  await requireAuth();
+  const { id } = await params;
+  const { page: pageParam } = await searchParams;
+
+  const userId = Number(id);
+  const currentPage = pageParam ? Math.max(1, parseInt(pageParam, 10)) : 1;
+
+  if (isNaN(userId) || userId <= 0) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="text-lg text-red-600">Invalid user ID</div>
+      </div>
+    );
+  }
+
+  let pageData: PageData;
+  try {
+    pageData = await fetchUserData(userId, currentPage);
+  } catch (error) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="text-lg text-red-600">
+          Failed to load user details. Please try again.
+        </div>
+      </div>
+    );
+  }
+
+  const { user, posts, totalPages } = pageData;
+
+  return (<>
+    <UserInfoCard avatar={user.image} firstName={user.firstName} lastName={user.lastName} username={user.username} email={user.email} job={user.company.title} gender={user.gender} />
+    <div className='flex flex-col gap-4'>
+      <h2 className="text-2xl font-bold text-gray-900">
+        Posts ({posts.total})
+      </h2>
+      <label htmlFor="search" className="block text-sm font-medium text-gray-700">
+        Showing posts {Math.min(posts.skip + posts.limit, posts.total)} of {posts.total}
+      </label>
+
+      <div className="space-y-4">
+        {posts.posts.map((post) => (
+          <Post key={post.id} title={post.title} body={post.body} tags={post.tags} reactions={post.reactions} />
+        ))}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mb-8">
+          {currentPage > 1 && (
+            <Link
+              href={`/users/${userId}?page=${currentPage - 1}`}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              ← Previous
+            </Link>
+          )}
+
+          <div className="flex items-center gap-2">
+            <span className="text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
           </div>
-        )}
 
-        {/* Loading State */}
-        {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="text-lg text-gray-600">Loading user details...</div>
-          </div>
-        ) : !user ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="text-lg text-gray-600">No user found</div>
-          </div>
-        ) : (
-          <div className="bg-white shadow-md rounded-lg overflow-hidden">
-            <div className="px-6 py-8">
-              {/* User Avatar and Name */}
-              <div className="flex items-center mb-8">
-                {user.image && (
-                  <img
-                    src={user.image}
-                    alt={`${user.firstName} ${user.lastName}`}
-                    className="w-24 h-24 rounded-full mr-6 object-cover"
-                  />
-                )}
-                <div>
-                  <h2 className="text-3xl font-bold text-gray-900">
-                    {user.firstName} {user.lastName}
-                  </h2>
-                  <p className="text-gray-600">@{user.username}</p>
-                </div>
-              </div>
+          {currentPage < totalPages && (
+            <Link
+              href={`/users/${userId}?page=${currentPage + 1}`}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Next →
+            </Link>
+          )}
+        </div>
 
-              {/* Info Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <p className="text-gray-900">{user.email}</p>
-                </div>
-
-                {/* Phone */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Phone
-                  </label>
-                  <p className="text-gray-900">{user.phone || 'N/A'}</p>
-                </div>
-
-                {/* Gender */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Gender
-                  </label>
-                  <p className="text-gray-900 capitalize">{user.gender || 'N/A'}</p>
-                </div>
-
-                {/* Age */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Age
-                  </label>
-                  <p className="text-gray-900">{user.age || 'N/A'}</p>
-                </div>
-
-                {/* Address */}
-                {user.address && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1">
-                        Address
-                      </label>
-                      <p className="text-gray-900">{user.address.address}</p>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1">
-                        City / State
-                      </label>
-                      <p className="text-gray-900">
-                        {user.address.city}
-                        {user.address.state && `, ${user.address.state}`}
-                      </p>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1">
-                        Country
-                      </label>
-                      <p className="text-gray-900">{user.address.country || 'N/A'}</p>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1">
-                        ZIP Code
-                      </label>
-                      <p className="text-gray-900">{user.address.city || 'N/A'}</p>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
+      )}
     </div>
+  </>
   );
 }

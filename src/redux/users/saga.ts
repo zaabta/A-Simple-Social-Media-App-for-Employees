@@ -9,66 +9,95 @@ import {
   fetchUserByIdSuccess,
   fetchUserByIdFailure,
   searchUsersRequest,
-  searchUsersSuccess,
-  searchUsersFailure,
-  sortUsersRequest,
-  sortUsersSuccess,
-  sortUsersFailure,
-  filterUsersRequest,
-  filterUsersSuccess,
-  filterUsersFailure,
 } from './slice';
 import type {
   FetchUsersPayload,
   FetchUserByIdPayload,
-  SearchUsersPayload,
-  SortUsersPayload,
-  FilterUsersPayload,
 } from './types';
 import type { RootState } from '../store';
-import { SORT_ORDERS } from '@/constants';
 
-function* fetchUsersSaga(action: PayloadAction<FetchUsersPayload>): Generator<any, void, any> {
+
+// 🔥 MAIN WORKER (handles EVERYTHING)
+function* fetchUsersSaga(
+  action: PayloadAction<FetchUsersPayload>
+): Generator<any, void, any> {
   try {
     const state: RootState = yield select();
-    const { page, limit, searchQuery, sortByFirstNameOrder, sortByAgeOrder, filters } = state.users;
-    
-    // Use either the provided payload or the current state
-    const skip = action.payload.skip !== undefined ? action.payload.skip : (page - 1) * limit;
-    
-    const payload: FetchUsersPayload = {
-      skip,
-      limit: action.payload.limit || limit,
-      query: action.payload.query !== undefined ? action.payload.query : searchQuery,
-      sortByFirstNameOrder: action.payload.sortByFirstNameOrder !== undefined ? action.payload.sortByFirstNameOrder : sortByFirstNameOrder,
-      sortByAgeOrder: action.payload.sortByAgeOrder !== undefined ? action.payload.sortByAgeOrder : sortByAgeOrder,
-      filters: action.payload.filters || filters,
+    const {
+      page,
+      limit,
+      searchQuery,
+      sortByFirstNameOrder,
+      sortByAgeOrder,
+      filterType,
+      filterValue,
+    } = state.users;
+
+    // ✅ merge payload with state (payload overrides state)
+    const finalPayload: FetchUsersPayload = {
+      skip:
+        action.payload.skip !== undefined
+          ? action.payload.skip
+          : (page - 1) * limit,
+
+      limit: action.payload.limit ?? limit,
+
+      query:
+        action.payload.query !== undefined
+          ? action.payload.query
+          : searchQuery,
+
+      sortByFirstNameOrder:
+        action.payload.sortByFirstNameOrder !== undefined
+          ? action.payload.sortByFirstNameOrder
+          : sortByFirstNameOrder,
+
+      sortByAgeOrder:
+        action.payload.sortByAgeOrder !== undefined
+          ? action.payload.sortByAgeOrder
+          : sortByAgeOrder,
     };
 
-    const response = yield call(usersService.fetchUsers, payload);
+    const response = yield call(usersService.fetchUsers, finalPayload);
+
     yield put(fetchUsersSuccess(response));
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch users';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to fetch users';
+
     yield put(fetchUsersFailure(errorMessage));
   }
 }
 
-function* fetchUserByIdSaga(action: PayloadAction<FetchUserByIdPayload>): Generator<any, void, any> {
+
+// 👤 USER DETAILS
+function* fetchUserByIdSaga(
+  action: PayloadAction<FetchUserByIdPayload>
+): Generator<any, void, any> {
   try {
-    const response = yield call(usersService.fetchUserById, action.payload.id);
+    const response = yield call(
+      usersService.fetchUserById,
+      action.payload.id
+    );
+
     yield put(fetchUserByIdSuccess(response));
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to fetch user';
+
     yield put(fetchUserByIdFailure(errorMessage));
   }
 }
 
-export function* usersSaga(): Generator<any, void, any> {
-  yield takeLatest([
-    fetchUsersRequest.type, 
-    searchUsersRequest.type, 
-    sortUsersRequest.type, 
-    filterUsersRequest.type
-  ], fetchUsersSaga);
+
+// 👀 WATCHERS
+export function* usersSaga(): Generator {
+  // ⚡ Normal fetch (pagination, filter, sort)
+  yield takeLatest(fetchUsersRequest.type, fetchUsersSaga);
+
+  // 🔍 Debounced search
+  yield debounce(500, searchUsersRequest.type, fetchUsersSaga);
+
+  // 👤 User details
   yield takeLatest(fetchUserByIdRequest.type, fetchUserByIdSaga);
 }

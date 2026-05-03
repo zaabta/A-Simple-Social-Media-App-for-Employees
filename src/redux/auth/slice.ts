@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { AuthState, AuthResponse, LoginPayload, User } from './authTypes';
-
+import type { AuthState, AuthResponse, LoginPayload, AuthUser } from './types';
+import { setCookie, removeCookie } from '@/utils/cookies';
+import { AUTH_COOKIE_OPTIONS, AUTH_TOKEN, AUTH_USER, AuthSliceName } from '@/constants';
 
 const initialState: AuthState = {
   user: null,
@@ -11,10 +12,9 @@ const initialState: AuthState = {
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: AuthSliceName,
   initialState,
   reducers: {
-    // Login actions
     loginRequest: (state, action: PayloadAction<LoginPayload>) => {
       state.loading = true;
       state.error = null;
@@ -34,10 +34,12 @@ const authSlice = createSlice({
         gender: action.payload.gender,
       };
       state.error = null;
-      // Persist token
+      // Persist token in both sessionStorage and cookies
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem('authToken', action.payload.accessToken);
-        sessionStorage.setItem('authUser', JSON.stringify(state.user));
+        sessionStorage.setItem(AUTH_TOKEN, action.payload.accessToken);
+        sessionStorage.setItem(AUTH_USER, JSON.stringify(state.user));
+        setCookie(AUTH_TOKEN, action.payload.accessToken, AUTH_COOKIE_OPTIONS);
+        setCookie(AUTH_USER, JSON.stringify(state.user), AUTH_COOKIE_OPTIONS);
       }
     },
 
@@ -49,7 +51,6 @@ const authSlice = createSlice({
       state.user = null;
     },
 
-    // Logout actions
     logoutRequest: (state) => {
       state.loading = true;
     },
@@ -61,8 +62,10 @@ const authSlice = createSlice({
       state.token = null;
       state.error = null;
       if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('authToken');
-        sessionStorage.removeItem('authUser');
+        sessionStorage.removeItem(AUTH_TOKEN);
+        sessionStorage.removeItem(AUTH_USER);
+        removeCookie(AUTH_TOKEN);
+        removeCookie(AUTH_USER);
       }
     },
 
@@ -72,13 +75,12 @@ const authSlice = createSlice({
     },
 
     // Rehydrate from session storage
-    rehydrateAuth: (state, action: PayloadAction<{ token: string; user: User }>) => {
+    rehydrateAuth: (state, action: PayloadAction<{ token: string; user: AuthUser }>) => {
       state.token = action.payload.token;
       state.user = action.payload.user;
       state.isAuthenticated = !!action.payload.token;
     },
 
-    // Clear error
     clearAuthError: (state) => {
       state.error = null;
     },

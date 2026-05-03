@@ -1,6 +1,6 @@
 import { GENDER } from "@/constants";
 import { selectIsAuthenticated, useAppSelector } from "@/redux";
-import Badge, { Color } from "./Badge";
+import Badge, { BadgeColor } from "./Badge";
 
 export type UserCardProps = {
     name?: string;
@@ -27,7 +27,7 @@ export default function UserCard({ user }: { user: UserCardProps }) {
                 {isAuthenticated && <span className="text-sm text-gray-500">@{user.username}</span>}
                 {isAuthenticated && <span className="text-sm text-gray-500">{user.email}</span>}
                 {isAuthenticated && <Badge text={user.city || "Unknown City"} />}
-                <Badge className="capitalize font-semibold " text={String(user.gender)} color={user.gender === GENDER.MALE ? Color.BLUE : Color.PINK} />
+                <Badge className="capitalize font-semibold " text={String(user.gender)} color={user.gender === GENDER.MALE ? BadgeColor.BLUE : BadgeColor.PINK} />
             </div>
         </div>
     );

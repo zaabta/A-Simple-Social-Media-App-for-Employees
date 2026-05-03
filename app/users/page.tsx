@@ -23,7 +23,7 @@ import { calculateSkip, toggleSortOrder } from '@/utils';
 import type { FilterOptions } from '@/redux/users/types';
 import { usersService } from '@/redux/users/service';
 import { DropDown, UserCard } from '@/components';
-import { DEFAULT_PAGE_SIZE, FILTER_TYPE, SORT_ORDERS } from '@/constants';
+import { DEFAULT_PAGE_SIZE, FILTER_TYPE, SORT_FIELDS, SORT_ORDERS } from '@/constants';
 
 export default function UsersPage() {
   const dispatch = useAppDispatch();
@@ -81,8 +81,8 @@ export default function UsersPage() {
     dispatch(usersActions.filterUsers({ type, value, skip: 0, limit: DEFAULT_PAGE_SIZE }));
   };
 
-  const handleSort = (sortField: 'name' | 'age') => {
-    if (sortField === 'name') {
+  const handleSort = (sortField: SORT_FIELDS) => {
+    if (sortField === SORT_FIELDS.FIRST_NAME) {
       dispatch(usersActions.sortUsers({ 
         sortByFirstNameOrder: toggleSortOrder(sortByFirstNameOrder), 
         sortByAgeOrder 
@@ -140,13 +140,13 @@ export default function UsersPage() {
           <div className="flex flex-col gap-4 mb-6">
             <div className="flex gap-4 items-center justify-left bg-white p-4 rounded-lg shadow">
               <button
-                onClick={() => handleSort('name')}
+                onClick={() => handleSort(SORT_FIELDS.FIRST_NAME)}
                 className="flex gap-2 bg-gray-100 hover:bg-gray-200 capitalize text-sm text-gray-700 border border-gray-300 py-2 px-4 rounded-lg">
                 sort by first name
                 {sortByFirstNameOrder && <img src={`/assets/${sortByFirstNameOrder === SORT_ORDERS.ASC ? 'up' : 'down'}-arrow.svg`} alt="Sort" className="w-4 h-4 inline-block ml-1" />}
               </button>
               <button
-                onClick={() => handleSort('age')}
+                onClick={() => handleSort(SORT_FIELDS.AGE)}
                 className="flex gap-2 bg-gray-100 hover:bg-gray-200 capitalize text-sm text-gray-700 border border-gray-300 py-2 px-4 rounded-lg"
               >
                 sort by age

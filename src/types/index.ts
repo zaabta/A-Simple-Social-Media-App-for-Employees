@@ -1,4 +1,4 @@
-import { GENDER } from "@/constants";
+import { GENDER, SAME_SITE } from "@/constants";
 
 export interface Address {
   address: string;
@@ -31,23 +31,6 @@ export interface User {
   address: Address;
 }
 
-export interface LoginRequest {
-  username: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  id: number;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  gender: GENDER;
-  image: string;
-}
-
 export interface ApiResponse<T> {
   data?: T;
   error?: string;
@@ -60,15 +43,9 @@ export interface PaginationParams {
   limit: number;
 }
 
-export interface UsersResponse {
-  users: User[];
-  total: number;
-  skip: number;
-  limit: number;
-}
-
-export interface SearchParams {
-  q: string;
-  skip?: number;
-  limit?: number;
+export interface CookieOptions {
+  maxAge?: number;
+  path?: string;
+  secure?: boolean;
+  sameSite?: SAME_SITE;
 }

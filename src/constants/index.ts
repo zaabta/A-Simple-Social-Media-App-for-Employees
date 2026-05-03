@@ -34,7 +34,7 @@ export const SUCCESS_MESSAGES = {
 export enum GENDER { MALE = 'male', FEMALE = 'female' };
 
 export enum FILTER_TYPE {
-  CITY = 'city',
+  CITY = 'address.city',
   JOB = 'company.title',
   GENDER = 'gender',
 }
@@ -47,4 +47,30 @@ export enum SORT_ORDERS {
 export enum SORT_FIELDS {
   FIRST_NAME = 'firstName',
   AGE = 'age',
+}
+
+export const AUTH_TOKEN = 'authToken';
+
+export const AUTH_USER = 'authUser';
+
+export enum SAME_SITE {
+  STRICT = 'Strict',
+  LAX = 'Lax',
+  NONE = 'None'
+}
+
+export const AUTH_COOKIE_OPTIONS= {
+  maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
+  secure: true,
+  sameSite: SAME_SITE.LAX,
+}
+
+export const AuthSliceName = 'auth';
+export const UsersSliceName = 'users';
+
+export const RequestTypes = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
 }

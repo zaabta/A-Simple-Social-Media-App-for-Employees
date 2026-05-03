@@ -1,5 +1,5 @@
-import { loginRequest, logoutRequest, clearAuthError, rehydrateAuth } from './authSlice';
-import type { LoginPayload, RehydrateAuthPayload } from './authTypes';
+import { loginRequest, logoutRequest, clearAuthError, rehydrateAuth } from './slice';
+import type { LoginPayload, RehydrateAuthPayload } from './types';
 
 export const authActions = {
   login: (credentials: LoginPayload) => loginRequest(credentials),

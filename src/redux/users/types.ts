@@ -1,32 +1,27 @@
 import { Options } from '@/components/DropDown';
 import { FILTER_TYPE, SORT_ORDERS } from '@/index';
-import type { User } from '@/types';
+import type { PaginationParams, User } from '@/types';
 
-export interface UsersState {
+export interface UsersState extends PaginationParams {
   users: User[];
   selectedUser: User | null;
   loading: boolean;
   error: string | null;
   total: number;
   page: number;
-  limit: number;
   searchQuery: string;
   isSearching: boolean;
   sortByFirstNameOrder: SORT_ORDERS | null;
   sortByAgeOrder: SORT_ORDERS | null;
-  filters: {
-    city: string;
-    job: string;
-    gender: string;
-  };
+  filterType: FILTER_TYPE | null;
+  filterValue: string | null;
 }
 
-export interface FetchUsersPayload {
-  skip?: number;
-  limit?: number;
+export interface FetchUsersPayload extends PaginationParams {
   query?: string;
   sortByFirstNameOrder?: SORT_ORDERS | null;
   sortByAgeOrder?: SORT_ORDERS | null;
+  sortOrder?: SORT_ORDERS | null;
   filters?: {
     city?: string;
     job?: string;
@@ -34,26 +29,13 @@ export interface FetchUsersPayload {
   };
 }
 
-export interface SearchUsersPayload {
-  query: string;
-  skip?: number;
-  limit?: number;
-}
-
 export interface FetchUserByIdPayload {
   id: number;
 }
 
-export interface SortUsersPayload {
-  sortByFirstNameOrder: SORT_ORDERS | null;
-  sortByAgeOrder: SORT_ORDERS | null;
-}
-
-export interface FilterUsersPayload {
+export interface FilterUsersPayload extends PaginationParams {
   type: FILTER_TYPE;
   value: string;
-  skip?: number;
-  limit?: number;
 }
 
 export interface FilterOptions {
@@ -61,3 +43,30 @@ export interface FilterOptions {
   jobTitles: Options[];
   genders: Options[];
 }
+
+
+export interface Post {
+  id: number;
+  title: string;
+  body: string;
+  tags: string[];
+  reactions?: {
+    likes?: number;
+    dislikes?: number;
+  };
+}
+
+export interface PostsResponse extends PaginationParams {
+  posts: Post[];
+  total: number;
+}
+
+export interface SearchUsersPayload extends PaginationParams {
+  query: string;
+}
+
+export interface UsersResponse extends PaginationParams {
+  users: User[];
+  total: number;
+}
+

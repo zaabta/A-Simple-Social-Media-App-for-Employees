@@ -32,10 +32,10 @@ export {
 } from './hooks';
 
 // Auth
-export { default as authReducer } from './auth/authSlice';
-export { authSaga } from './auth/authSaga';
-export { authActions } from './auth/authActions';
-export type { AuthState, LoginPayload, AuthResponse } from './auth/authTypes';
+export { default as authReducer } from './auth/slice';
+export { authSaga } from './auth/saga';
+export { authActions } from './auth/actions';
+export type { AuthState, LoginPayload, AuthResponse } from './auth/types';
 
 // Users
 export { default as usersReducer } from './users/slice';

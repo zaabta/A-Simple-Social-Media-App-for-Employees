@@ -1,3 +1,5 @@
+import { SORT_ORDERS } from "..";
+
 /**
  * Check if code is running on client side
  */
@@ -113,3 +115,26 @@ export const wait = (ms: number): Promise<void> => {
 export const deepClone = <T>(obj: T): T => {
   return JSON.parse(JSON.stringify(obj));
 };
+
+
+/** * Generate random ID
+ */
+export const generateId = (): string => {
+  return Math.random().toString(36).substr(2, 9);
+};
+
+/**
+ * Capitalize first letter of string
+ */
+export const capitalize = (str: string): string => {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+
+/** 
+ * Toggle sort order
+ */
+export const toggleSortOrder = (sortOrder: SORT_ORDERS | null) => {
+  return sortOrder === null ? SORT_ORDERS.ASC : sortOrder === SORT_ORDERS.ASC ? SORT_ORDERS.DESC : null;
+}

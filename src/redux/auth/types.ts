@@ -1,4 +1,4 @@
-export interface User {
+export interface AuthUser {
   id: number;
   username: string;
   email: string;
@@ -9,7 +9,7 @@ export interface User {
 }
 
 export interface AuthState {
-  user: User | null;
+  user: AuthUser | null;
   token: string | null;
   loading: boolean;
   error: string | null;
@@ -35,5 +35,5 @@ export interface AuthResponse {
 
 export interface RehydrateAuthPayload {
   token: string;
-  user: User;
+  user: AuthUser;
 }

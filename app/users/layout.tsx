@@ -1,10 +1,12 @@
 'use client';
+import { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { selectIsAuthenticated, selectAuthUser } from '@/redux/hooks';
-import { authActions } from '@/redux/auth/authActions';
+import { authActions } from '@/redux/auth/actions';
 
-export default function UsersLayout({ children }: { children: React.ReactNode }) {
+
+export default function UsersLayout({ children }: { children: ReactNode }) {
     const isAuthenticated = useAppSelector(selectIsAuthenticated);
     const authUser = useAppSelector(selectAuthUser);
     const router = useRouter();

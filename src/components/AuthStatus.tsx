@@ -1,6 +1,6 @@
 'use client';
 import { useAppDispatch, useAppSelector, selectAuthUser, selectIsAuthenticated } from '@/redux/hooks';
-import { authActions } from '@/redux/auth/authActions';
+import { authActions } from '@/redux/auth/actions';
 
 /**
  * Example: Auth Status Component

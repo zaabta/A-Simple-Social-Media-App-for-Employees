@@ -1,4 +1,4 @@
-export enum Color {
+export enum BadgeColor {
     BLUE = "blue",
     PINK = "pink",
     GRAY = "gray"
@@ -6,16 +6,16 @@ export enum Color {
 
 export type BadgeProps = {
     text: string;
-    color?: Color;
+    color?: BadgeColor;
     className?: string;
 };
 
-export default function Badge({ text, color = Color.GRAY, className }: BadgeProps) {
+export default function Badge({ text, color = BadgeColor.GRAY, className }: BadgeProps) {
     return (
         <span
-            className={`inline-block mt-1 text-xs h-fit w-fit px-2 py-0.5 rounded-full ${color === Color.BLUE
+            className={`inline-block mt-1 text-xs h-fit w-fit px-2 py-0.5 rounded-full ${color === BadgeColor.BLUE
                 ? "bg-blue-100 text-blue-600"
-                : color === Color.PINK
+                : color === BadgeColor.PINK
                     ? "bg-pink-100 text-pink-600"
                     : "bg-gray-100 text-gray-600"
                 } ${className || ""}`}
