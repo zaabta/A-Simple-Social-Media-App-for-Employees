@@ -57,7 +57,7 @@ export default function SearchBar({ initialValue, disabled }: Props) {
                 />
             </div>
             <button
-                onClick={() => router.push(buildUrl(input))}
+                onClick={handleSubmit}
                 disabled={disabled || !searchInput.trim()}
                 className={`bg-blue-${searchInput.trim() ? '600' : '100'} w-25 flex gap-x-0.5 items-center justify-left text-white text-sm py-2 px-2 rounded-md`}
             >

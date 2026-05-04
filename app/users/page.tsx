@@ -7,8 +7,8 @@ export interface UsersPageProps {
   searchParams: {
     page?: string;
     search?: string;
-    sortFirstName?: SORT_ORDERS | null;
-    sortAge?: SORT_ORDERS | null;
+    firstName?: SORT_ORDERS | null;
+    age?: SORT_ORDERS | null;
     city?: string;
     job?: string;
     gender?: string;
@@ -20,12 +20,12 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
   const cookieStore = await cookies();
   const token = cookieStore.get(AUTH_TOKEN);
   const isAuthenticated = Boolean(token);
-  const { page, search, sortFirstName, sortAge, city, job, gender } = await searchParams;
+  const { page, search, firstName, age, city, job, gender } = await searchParams;
   const urlParams = {
     page: Math.max(1, parseInt(page ?? '1', 10)),
     query: search?.trim() ?? '',
-    sortFirstName: sortFirstName ?? null,
-    sortAge: sortAge ?? null,
+    firstName: firstName ?? null,
+    age: age ?? null,
     filters: {
       city: city ?? '',
       job: job ?? '',
@@ -53,8 +53,8 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
       {isAuthenticated && (
         <div className="flex flex-col gap-4">
           <SortControls
-            sortFirstName={urlParams.sortFirstName}
-            sortAge={urlParams.sortAge}
+            sortFirstName={urlParams.firstName}
+            sortAge={urlParams.age}
           />
           <FilterControls
             cities={filterOptions.cities}

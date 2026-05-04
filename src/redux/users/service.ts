@@ -6,7 +6,7 @@ import type {
   PostsResponse,
 } from './types';
 import { capitalize } from '@/utils';
-import { FILTER_TYPE, User } from '@/index';
+import { FILTER_TYPE, SingleUser, SORT_FIELDS } from '@/index';
 
 export const usersService = {
   fetchUsers: async (payload: FetchUsersPayload): Promise<UsersResponse> => {
@@ -17,7 +17,13 @@ export const usersService = {
       filters,
       sortByFirstNameOrder,
       sortByAgeOrder,
+      firstName,
+      age,
     } = payload;
+    
+    // Support both naming conventions
+    const sortFirstName = firstName ?? sortByFirstNameOrder;
+    const sortAge = age ?? sortByAgeOrder;
 
     let baseUrl = '/users';
     const params = new URLSearchParams({
@@ -55,12 +61,12 @@ export const usersService = {
     }
 
     // 🔄 SORT (only one primary sort)
-    if (sortByFirstNameOrder) {
-      params.append('sortBy', 'firstName');
-      params.append('order', sortByFirstNameOrder);
-    } else if (sortByAgeOrder) {
-      params.append('sortBy', 'age');
-      params.append('order', sortByAgeOrder);
+    if (sortFirstName) {
+      params.append('sortBy', SORT_FIELDS.FIRST_NAME);
+      params.append('order', sortFirstName);
+    } else if (sortAge) {
+      params.append('sortBy', SORT_FIELDS.AGE);
+      params.append('order', sortAge);
     }
 
     const response = await apiClient.get<UsersResponse>(
@@ -70,8 +76,8 @@ export const usersService = {
     return response;
   },
 
-  fetchUserById: async (id: number): Promise<User> => {
-    return apiClient.get<User>(`/users/${id}`);
+  fetchUserById: async (id: number): Promise<SingleUser> => {
+    return apiClient.get<SingleUser>(`/users/${id}`);
   },
 
   getFilterOptions: async (): Promise<FilterOptions> => {

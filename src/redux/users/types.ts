@@ -1,10 +1,10 @@
 import { Options } from '@/components/DropDown';
-import { FILTER_TYPE, SORT_FIELDS, SORT_ORDERS } from '@/index';
-import type { PaginationParams, User } from '@/types';
+import { FILTER_TYPE, SORT_ORDERS } from '@/index';
+import type { PaginationParams, SingleUser } from '@/types';
 
 export interface UsersState extends PaginationParams {
-  users: User[];
-  selectedUser: User | null;
+  users: SingleUser[];
+  selectedUser: SingleUser | null;
   loading: boolean;
   error: string | null;
   total: number;
@@ -24,6 +24,8 @@ export interface FetchUsersPayload extends PaginationParams {
   query?: string;
   sortByFirstNameOrder?: SORT_ORDERS | null;
   sortByAgeOrder?: SORT_ORDERS | null;
+  firstName?: SORT_ORDERS | null;
+  age?: SORT_ORDERS | null;
   sortOrder?: SORT_ORDERS | null;
   filters?: {
     city?: string;
@@ -69,7 +71,7 @@ export interface SearchUsersPayload extends PaginationParams {
 }
 
 export interface UsersResponse extends PaginationParams {
-  users: User[];
+  users: SingleUser[];
   total: number;
 }
 
