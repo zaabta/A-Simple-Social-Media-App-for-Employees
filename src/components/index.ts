@@ -4,3 +4,4 @@ export { default as Badge } from "./Badge";
 export { default as Post } from "./Post";
 export { default as UserInfoCard } from "./UserInfoCard";
 export { default as InfoRow } from "./InfoRow";
+export { default as Pagination } from "./Pagination";

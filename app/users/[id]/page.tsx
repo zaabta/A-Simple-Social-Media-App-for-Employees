@@ -1,9 +1,10 @@
-import Link from 'next/link';
 import { requireAuth } from '@/utils/auth.server';
-import { Post, UserInfoCard } from '@/components';
+import { Pagination, Post, UserInfoCard } from '@/components';
 import { User } from '@/types';
 import { usersService } from '@/redux/users/service';
 import { PostsResponse } from '@/redux/users/types';
+import { usersActions } from '@/redux/users/actions';
+import { DEFAULT_PAGE_SIZE } from '@/constants';
 
 interface UserDetailPageProps {
   params: Promise<{ id: string }>;
@@ -18,16 +19,15 @@ interface PageData {
 }
 
 async function fetchUserData(userId: number, page: number = 1): Promise<PageData> {
-  const limit = 10;
-  const skip = (page - 1) * limit;
+  const skip = (page - 1) * DEFAULT_PAGE_SIZE;
 
   try {
     const [user, posts] = await Promise.all([
       usersService.fetchUserById(userId),
-      usersService.getUserPosts(userId, skip, limit),
+      usersService.getUserPosts(userId, skip, DEFAULT_PAGE_SIZE),
     ]);
 
-    const totalPages = Math.ceil(posts.total / limit);
+    const totalPages = Math.ceil(posts.total / DEFAULT_PAGE_SIZE);
 
     return {
       user,
@@ -93,32 +93,18 @@ export default async function UserDetailPage({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mb-8">
-          {currentPage > 1 && (
-            <Link
-              href={`/users/${userId}?page=${currentPage - 1}`}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            >
-              ← Previous
-            </Link>
-          )}
-
-          <div className="flex items-center gap-2">
-            <span className="text-gray-600">
-              Page {currentPage} of {totalPages}
-            </span>
-          </div>
-
-          {currentPage < totalPages && (
-            <Link
-              href={`/users/${userId}?page=${currentPage + 1}`}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            >
-              Next →
-            </Link>
-          )}
-        </div>
-
+        <Pagination
+          page={currentPage}
+          total={totalPages}
+          startIndex={totalPages === 0 ? 0 : (currentPage - 1) * DEFAULT_PAGE_SIZE + 1}
+          endIndex={totalPages === 0 ? 0 : Math.min(currentPage * DEFAULT_PAGE_SIZE, posts.total)}
+          hasPrevPage={currentPage > 1}
+          hasNextPage={currentPage < totalPages}
+          isLoading={false}
+          handlePrevPage={() => currentPage > 1 && (window.location.href = `/users/${userId}?page=${currentPage - 1}`)}
+          handleNextPage={() => currentPage < totalPages && (window.location.href = `/users/${userId}?page=${currentPage + 1}`)}
+          handlePageClick={(page) => window.location.href = `/users/${userId}?page=${page}`}
+        />
       )}
     </div>
   </>

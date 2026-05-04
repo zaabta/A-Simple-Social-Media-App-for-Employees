@@ -138,3 +138,25 @@ export const capitalize = (str: string): string => {
 export const toggleSortOrder = (sortOrder: SORT_ORDERS | null) => {
   return sortOrder === null ? SORT_ORDERS.ASC : sortOrder === SORT_ORDERS.ASC ? SORT_ORDERS.DESC : null;
 }
+
+export const getPageNumbers = (totalPages: number, page: number): (number | string)[] => {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const pages: (number | string)[] = [1];
+
+  const rangeStart = Math.max(2, page - 1);
+  const rangeEnd = Math.min(totalPages - 1, page + 1);
+
+  if (rangeStart > 2) pages.push('ellipsis');
+
+  for (let i = rangeStart; i <= rangeEnd; i++) {
+    pages.push(i);
+  }
+
+  if (rangeEnd < totalPages - 1) pages.push('ellipsis');
+
+  pages.push(totalPages);
+  return pages;
+};

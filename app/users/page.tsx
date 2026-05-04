@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   selectIsAuthenticated,
   useAppDispatch,
@@ -9,7 +9,6 @@ import {
   selectUsersLoading,
   selectUsersError,
   selectUsersPage,
-  selectTotalPages,
   selectHasNextPage,
   selectHasPrevPage,
   selectSearchQuery,
@@ -22,16 +21,16 @@ import { usersActions } from '@/redux/users/actions';
 import { calculateSkip, toggleSortOrder } from '@/utils';
 import type { FilterOptions } from '@/redux/users/types';
 import { usersService } from '@/redux/users/service';
-import { DropDown, UserCard } from '@/components';
+import { DropDown, Pagination, UserCard } from '@/components';
 import { DEFAULT_PAGE_SIZE, FILTER_TYPE, SORT_FIELDS, SORT_ORDERS } from '@/constants';
 
 export default function UsersPage() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const users = useAppSelector(selectUsers);
   const loading = useAppSelector(selectUsersLoading);
   const error = useAppSelector(selectUsersError);
   const page = useAppSelector(selectUsersPage);
-  const totalPages = useAppSelector(selectTotalPages);
   const hasNextPage = useAppSelector(selectHasNextPage);
   const hasPrevPage = useAppSelector(selectHasPrevPage);
   const total = useAppSelector(selectUsersTotal);
@@ -49,7 +48,6 @@ export default function UsersPage() {
     genders: [],
   });
 
-  // Fetch filter options on mount
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
@@ -96,54 +94,25 @@ export default function UsersPage() {
 
   const handleSort = (sortField: SORT_FIELDS) => {
     if (sortField === SORT_FIELDS.FIRST_NAME) {
-      dispatch(usersActions.sortUsers({ 
-        sortByFirstNameOrder: toggleSortOrder(sortByFirstNameOrder), 
-        sortByAgeOrder 
+      dispatch(usersActions.sortUsers({
+        sortByFirstNameOrder: toggleSortOrder(sortByFirstNameOrder),
+        sortByAgeOrder
       }));
     } else {
-      dispatch(usersActions.sortUsers({ 
-        sortByAgeOrder: toggleSortOrder(sortByAgeOrder), 
-        sortByFirstNameOrder 
+      dispatch(usersActions.sortUsers({
+        sortByAgeOrder: toggleSortOrder(sortByAgeOrder),
+        sortByFirstNameOrder
       }));
     }
   };
 
-  const handleNextPage = () => {
-    if (hasNextPage) {
-      dispatch(usersActions.setPage(page + 1));
+  const handleCardClick = (userId: number) => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    } else {
+      router.push(`/users/${userId}`);
     }
   };
-
-  const handlePrevPage = () => {
-    if (hasPrevPage) {
-      dispatch(usersActions.setPage(page - 1));
-    }
-  };
-
-  const getPageNumbers = (): (number | string)[] => {
-    if (totalPages <= 7) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-
-    const pages: (number | string)[] = [1];
-
-    const rangeStart = Math.max(2, page - 1);
-    const rangeEnd = Math.min(totalPages - 1, page + 1);
-
-    if (rangeStart > 2) pages.push('ellipsis');
-
-    for (let i = rangeStart; i <= rangeEnd; i++) {
-      pages.push(i);
-    }
-
-    if (rangeEnd < totalPages - 1) pages.push('ellipsis');
-
-    pages.push(totalPages);
-    return pages;
-  };
-
-  const startIndex = total === 0 ? 0 : (page - 1) * limit + 1;
-  const endIndex = Math.min(page * limit, total);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -226,72 +195,35 @@ export default function UsersPage() {
           </div>
         ) : (
           <>
-            {/* User Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {users.map((user) => (
-                <Link
+                <UserCard
                   key={user.id}
-                  href={`/users/${user.id}`}
-                >
-                  <UserCard user={{
-                    name: `${user.firstName} ${user.lastName}`,
-                    age: user.age || 0,
-                    gender: user.gender,
-                    avatar: user.image,
-                    email: user.email,
-                    username: user.username,
-                    city: user.address?.city,
-                    job: user.company?.title,
-                  }} />
-                </Link>
+                  name={`${user.firstName} ${user.lastName}`}
+                  age={user.age || 0}
+                  gender={user.gender}
+                  avatar={user.image}
+                  email={user.email}
+                  username={user.username}
+                  city={user.address?.city}
+                  job={user.company?.title}
+                  onClick={() => handleCardClick(user.id)}
+                />
               ))}
             </div>
 
-            {/* Pagination */}
-            <div className="flex gap-4 justify-end items-center mt-6">
-              <p className="text-sm text-gray-500">
-                {total === 0 ? '0' : `${startIndex}–${endIndex}`} of {total} results
-              </p>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={handlePrevPage}
-                  className={`px-3 py-1 rounded-md text-sm ${loading || !hasPrevPage
-                    ? "bg-blue-600 text-white cursor-not-allowed"
-                    : "bg-white border text-gray-600 hover:bg-gray-50"
-                    }`}
-                >
-                  <img src="/assets/left-arrow.svg" alt="Previous" className="w-4 h-4" />
-                </button>
-                {getPageNumbers().map((num, index) => (
-                  num === 'ellipsis' ? (
-                    <span key={`ellipsis-${index}`} className="px-2 py-1 text-sm text-gray-500">
-                      ...
-                    </span>
-                  ) : (
-                    <button
-                      key={num}
-                      onClick={() => dispatch(usersActions.setPage(num as number))}
-                      className={`px-3 py-1 rounded-md text-sm ${num === page
-                        ? "bg-blue-600 text-white"
-                        : "bg-white border text-gray-600 hover:bg-gray-50"
-                        }`}
-                    >
-                      {num}
-                    </button>
-                  )
-                ))}
-                <button
-                  onClick={handleNextPage}
-                  className={`px-3 py-1 rounded-md text-sm ${loading || !hasNextPage
-                    ? "bg-blue-600 text-white cursor-not-allowed"
-                    : "bg-white border text-gray-600 hover:bg-gray-50"
-                    }`}
-                >
-                  <img src="/assets/right-arrow.svg" alt="Next" className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+            <Pagination
+              page={page}
+              total={total}
+              startIndex={total === 0 ? 0 : (page - 1) * limit + 1}
+              endIndex={total === 0 ? 0 : Math.min(page * limit, total)}
+              hasPrevPage={hasPrevPage}
+              hasNextPage={hasNextPage}
+              isLoading={loading}
+              handlePrevPage={() => hasNextPage && dispatch(usersActions.setPage(page - 1))}
+              handleNextPage={() => hasNextPage && dispatch(usersActions.setPage(page + 1))}
+              handlePageClick={(page) => dispatch(usersActions.setPage(page))}
+            />
           </>
         )}
       </main>
