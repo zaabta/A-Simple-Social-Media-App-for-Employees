@@ -162,3 +162,15 @@ export const getPageNumbers = (totalItems: number, page: number, itemsPerPage: n
   pages.push(totalPages);
   return pages;
 };
+
+
+export const mapOptions = (set: Set<string>, format?: (v: string) => string, allLabel = 'All') =>
+  [
+    { value: '', label: allLabel },
+    ...Array.from(set)
+      .sort()
+      .map(value => ({
+        value,
+        label: format ? format(value) : value,
+      })),
+  ];

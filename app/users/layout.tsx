@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export default async function UsersLayout({ children }: { children: ReactNode }) {
     const cookieStore = await cookies();
-    const isAuthenticated = cookieStore.get(AUTH_TOKEN) !== undefined;
+    const isAuthenticated = cookieStore.get(AUTH_TOKEN)?.value !== undefined;
     const authUser = isAuthenticated ? JSON.parse(cookieStore.get(AUTH_USER)?.value || '{}') : null;
 
     return (

@@ -5,7 +5,7 @@ import type {
   FilterOptions,
   PostsResponse,
 } from './types';
-import { capitalize } from '@/utils';
+import { capitalize, mapOptions } from '@/utils';
 import { FILTER_TYPE, SingleUser, SORT_FIELDS } from '@/index';
 
 export const usersService = {
@@ -20,8 +20,7 @@ export const usersService = {
       firstName,
       age,
     } = payload;
-    
-    // Support both naming conventions
+
     const sortFirstName = firstName ?? sortByFirstNameOrder;
     const sortAge = age ?? sortByAgeOrder;
 
@@ -36,7 +35,6 @@ export const usersService = {
       baseUrl = '/users/search';
       params.append('q', query);
     }
-
     // 🎯 FILTER (only one at a time - API limitation)
     else if (filters) {
       let key = '';
@@ -94,21 +92,10 @@ export const usersService = {
         if (user.gender) genders.add(user.gender);
       });
 
-      const mapOptions = (set: Set<string>, format?: (v: string) => string) =>
-        [
-          { value: '', label: 'All' },
-          ...Array.from(set)
-            .sort()
-            .map(value => ({
-              value,
-              label: format ? format(value) : value,
-            })),
-        ];
-
       return {
-        cities: mapOptions(cities, v => v),
-        jobTitles: mapOptions(jobTitles, v => v),
-        genders: mapOptions(genders, v => capitalize(v)),
+        cities: mapOptions(cities, v => v, 'All Cities'),
+        jobTitles: mapOptions(jobTitles, v => v, 'Job Titles'),
+        genders: mapOptions(genders, v => capitalize(v), 'All Genders'),
       };
     } catch (error) {
       console.error('Failed to fetch filter options:', error);
