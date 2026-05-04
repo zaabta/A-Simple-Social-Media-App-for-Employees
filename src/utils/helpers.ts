@@ -139,7 +139,9 @@ export const toggleSortOrder = (sortOrder: SORT_ORDERS | null) => {
   return sortOrder === null ? SORT_ORDERS.ASC : sortOrder === SORT_ORDERS.ASC ? SORT_ORDERS.DESC : null;
 }
 
-export const getPageNumbers = (totalPages: number, page: number): (number | string)[] => {
+export const getPageNumbers = (totalItems: number, page: number, itemsPerPage: number): (number | string)[] => {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }

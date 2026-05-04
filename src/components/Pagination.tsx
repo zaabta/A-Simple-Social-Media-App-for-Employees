@@ -3,6 +3,7 @@
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useCallback } from 'react';
 import { getPageNumbers } from "@/utils";
+import { DEFAULT_PAGE_SIZE } from '@/constants';
 
 export interface PaginationProps {
     page: number;
@@ -46,7 +47,7 @@ export default function Pagination({ page, total, startIndex, endIndex, hasPrevP
                 >
                     <img src="/assets/left-arrow.svg" alt="Previous" className="w-4 h-4" />
                 </button>
-                {getPageNumbers(total, page).map((num, index) => (
+                {getPageNumbers(total, page, DEFAULT_PAGE_SIZE).map((num, index) => (
                     num === 'ellipsis' ? (
                         <span key={`ellipsis-${index}`} className="px-2 py-1 text-sm text-gray-500">
                             ...

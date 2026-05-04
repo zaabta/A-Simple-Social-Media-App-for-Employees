@@ -1,22 +1,18 @@
 import { ReactNode } from 'react';
-import { getCookie, removeCookie } from '@/utils';
+import { cookies } from 'next/headers';
 import { AUTH_TOKEN, AUTH_USER } from '@/constants';
 import Link from 'next/link';
 
 
-export default function UsersLayout({ children }: { children: ReactNode }) {
-    const isAuthenticated = getCookie(AUTH_TOKEN) !== undefined;
-    const authUser = isAuthenticated ? JSON.parse(getCookie(AUTH_USER) || '{}') : null;
-    const logout = () => {
-        removeCookie(AUTH_TOKEN);
-        removeCookie(AUTH_USER);
-        window.location.href = '/login';
-    };
+export default async function UsersLayout({ children }: { children: ReactNode }) {
+    const cookieStore = await cookies();
+    const isAuthenticated = cookieStore.get(AUTH_TOKEN) !== undefined;
+    const authUser = isAuthenticated ? JSON.parse(cookieStore.get(AUTH_USER)?.value || '{}') : null;
 
     return (
         <>
             <header className="bg-white shadow">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-4">
+                <div className="max-w-7xl mx-auto px-12 py-4">
                     <div className="flex justify-between items-center">
                         {isAuthenticated ? (
                             <div className="flex items-center gap-3">
@@ -27,11 +23,10 @@ export default function UsersLayout({ children }: { children: ReactNode }) {
                                         className="w-10 h-10 rounded-full object-cover"
                                     />
                                 )}
-                                <div>
-                                    <h1 className="text-xl font-bold text-gray-900">
-                                        Welcome, {authUser?.firstName} {authUser?.lastName}
-                                    </h1>
-                                </div>
+                                <h1 className="text-xl font-bold text-gray-900">
+                                    Welcome
+                                    <span>, {authUser.firstName} {authUser.lastName}</span>
+                                </h1>
                             </div>
                         ) : (
                             <div></div>

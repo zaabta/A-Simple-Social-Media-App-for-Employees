@@ -1,9 +1,8 @@
+import { CookieOptions } from "../types";
+
 /**
  * Client-side cookie utilities
  */
-
-import { CookieOptions } from "../types";
-
 export function setCookie(key: string, value: string, options: CookieOptions): void {
   if (typeof document === 'undefined') {
     return;

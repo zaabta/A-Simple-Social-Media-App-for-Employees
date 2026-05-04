@@ -1,7 +1,7 @@
 import { usersService } from '@/redux/users/service';
 import { AUTH_FIELDS, AUTH_TOKEN, DEFAULT_PAGE_SIZE, GUEST_FIELDS, SORT_ORDERS } from '@/constants';
-import { getCookie } from '@/utils';
 import { FilterControls, SortControls, SearchBar, UserCard, Pagination } from '@/components';
+import { cookies } from 'next/headers';
 
 export interface UsersPageProps {
   searchParams: {
@@ -17,7 +17,8 @@ export interface UsersPageProps {
 
 
 export default async function UsersPage({ searchParams }: UsersPageProps) {
-  const token = getCookie(AUTH_TOKEN);
+  const cookieStore = await cookies();
+  const token = cookieStore.get(AUTH_TOKEN);
   const isAuthenticated = Boolean(token);
   const { page, search, sortFirstName, sortAge, city, job, gender } = await searchParams;
   const urlParams = {
@@ -48,9 +49,9 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
   const visibleFields = isAuthenticated ? AUTH_FIELDS : GUEST_FIELDS;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="flex flex-col gap-4 mx-auto p-12">
       {isAuthenticated && (
-        <div className="flex flex-col gap-4 mb-6">
+        <div className="flex flex-col gap-4">
           <SortControls
             sortFirstName={urlParams.sortFirstName}
             sortAge={urlParams.sortAge}
@@ -74,7 +75,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {users.map((user) => (
               <UserCard
                 key={user.id}

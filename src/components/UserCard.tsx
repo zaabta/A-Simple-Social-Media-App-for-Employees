@@ -2,26 +2,16 @@
 import { useRouter } from 'next/navigation';
 import { GENDER, User_card_FIELD } from "@/constants";
 import Badge, { BadgeColor } from "./Badge";
+import { User } from '@/types';
 
 export type UserCardProps = {
-    user: {
-        id: number;
-        firstName?: string;
-        lastName?: string;
-        age?: number;
-        gender?: GENDER;
-        image?: string;
-        email?: string;
-        username?: string;
-        city?: string;
-        job?: string;
-    };
+    user: User;
     isAuthenticated: boolean;
     visibleFields?: readonly User_card_FIELD[];
 };
 
 export default function UserCard({ user, isAuthenticated, visibleFields }: UserCardProps) {
-    const { firstName, lastName, age, gender, image, email, username, city, job } = user;
+    const { firstName, lastName, age, gender, image, email, username, address, company } = user;
     const router = useRouter();
     const show = (field: User_card_FIELD) =>  visibleFields?.includes(field);
 
@@ -44,10 +34,10 @@ export default function UserCard({ user, isAuthenticated, visibleFields }: UserC
                 </div>
                 {show(User_card_FIELD.USERNAME) && <span className="text-xs text-gray-500">@{username}</span>}
                 {show(User_card_FIELD.EMAIL) && <span className="text-xs text-gray-500">{email}</span>}
-                {show(User_card_FIELD.CITY) && <Badge text={city || "Unknown City"} />}
+                {show(User_card_FIELD.CITY) && <Badge text={address?.city || "Unknown City"} />}
                 <div className="flex items-center justify-between">
                     {show(User_card_FIELD.GENDER) && <Badge className="capitalize font-semibold " text={String(gender)} color={gender === GENDER.MALE ? BadgeColor.BLUE : BadgeColor.PINK} />}
-                    {show(User_card_FIELD.JOB) && <span className="text-xs text-gray-500">{job}</span>}
+                    {show(User_card_FIELD.JOB) && <span className="text-xs text-gray-500">{company.name}</span>}
                 </div>
             </div>
         </div>
