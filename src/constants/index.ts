@@ -61,7 +61,7 @@ export enum SAME_SITE {
 
 export const AUTH_COOKIE_OPTIONS= {
   maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
-  secure: true,
+  secure: process.env.NODE_ENV === 'production',
   sameSite: SAME_SITE.LAX,
 }
 

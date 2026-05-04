@@ -15,9 +15,11 @@ export default function SearchBar({ initialValue, disabled }: Props) {
     const buildUrl = useBuildUrl();
     const { debouncedPush } = useDebouncedRouter(300);
 
-    useEffect(() => {
-        if (!searchInput) debouncedPush(buildUrl({ search: '' }));
-    }, [searchInput]);
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
+        const val = e.target.value
+        if (!val) debouncedPush(buildUrl({ search: '' }));
+        setSearchInput(val)
+    };
 
     const handleSubmit = () => {
         router.push(buildUrl({ search: searchInput }));
@@ -40,7 +42,7 @@ export default function SearchBar({ initialValue, disabled }: Props) {
                 <input
                     type="text"
                     value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
+                    onChange={handleChange}
                     onKeyDown={handleKeyDown}
                     placeholder="Search"
                     className="w-full px-0 py-1 text-black text-sm border border-none rounded-lg focus:outline-none"

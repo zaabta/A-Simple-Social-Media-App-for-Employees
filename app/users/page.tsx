@@ -81,7 +81,6 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
                 key={user.id}
                 user={user}
                 visibleFields={visibleFields}
-                isAuthenticated={isAuthenticated}
               />
             ))}
           </div>

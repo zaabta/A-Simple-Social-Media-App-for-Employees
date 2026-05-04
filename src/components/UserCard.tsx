@@ -6,21 +6,16 @@ import { SingleUser } from '@/types';
 
 export type UserCardProps = {
     user: SingleUser;
-    isAuthenticated: boolean;
     visibleFields?: readonly User_card_FIELD[];
 };
 
-export default function UserCard({ user, isAuthenticated, visibleFields }: UserCardProps) {
+export default function UserCard({ user, visibleFields }: UserCardProps) {
     const { firstName, lastName, age, gender, image, email, username, address, company } = user;
     const router = useRouter();
-    const show = (field: User_card_FIELD) =>  visibleFields?.includes(field);
+    const show = (field: User_card_FIELD) => visibleFields?.includes(field);
 
     const handleClick = () => {
-        if (!isAuthenticated) {
-            router.push(`/login?redirectBack=/users/${user.id}`);
-        } else {
-            router.push(`/users/${user.id}`);
-        }
+        router.push(`/users/${user.id}`);
     };
     return (
         <div className="flex items-left gap-4 bg-white shadow-sm rounded-xl p-2 hover:shadow-md transition pointer-coarse" onClick={handleClick}>

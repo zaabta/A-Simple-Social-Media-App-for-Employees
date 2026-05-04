@@ -1,4 +1,3 @@
-import { requireAuth } from '@/utils/auth.server';
 import { Pagination, Post, UserInfoCard } from '@/components';
 import { SingleUser } from '@/types';
 import { usersService } from '@/redux/users/service';
@@ -44,7 +43,6 @@ export default async function UserDetailPage({
   params,
   searchParams,
 }: UserDetailPageProps) {
-  await requireAuth();
   const { id } = await params;
   const { page: pageParam } = await searchParams;
 
