@@ -74,3 +74,43 @@ export const RequestTypes = {
   PUT: 'PUT',
   DELETE: 'DELETE',
 }
+
+export enum PAGE_PATH {
+  HOME = '/',
+  LOGIN = '/login',
+  USERS = '/users',
+  USER_DETAIL = `/users/:id`,
+} 
+
+export enum User_card_FIELD {
+  IMAGE = 'image',
+  FIRST_NAME = 'firstName',
+  LAST_NAME = 'lastName',
+  AGE = 'age',
+  GENDER = 'gender',
+  USERNAME = 'username',
+  EMAIL = 'email',
+  CITY = 'city',
+  JOB = 'job',
+}
+
+export const GUEST_FIELDS = [
+  User_card_FIELD.IMAGE,
+  User_card_FIELD.FIRST_NAME,
+  User_card_FIELD.LAST_NAME,
+  User_card_FIELD.AGE,
+  User_card_FIELD.GENDER,
+] as const;
+
+
+export const AUTH_FIELDS = [
+  User_card_FIELD.IMAGE,
+  User_card_FIELD.FIRST_NAME,
+  User_card_FIELD.LAST_NAME,
+  User_card_FIELD.AGE,
+  User_card_FIELD.GENDER,
+  User_card_FIELD.USERNAME,
+  User_card_FIELD.EMAIL,
+  User_card_FIELD.CITY,
+  User_card_FIELD.JOB,
+] as const;

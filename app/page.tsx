@@ -1,13 +1,6 @@
-'use client';
+import { PAGE_PATH } from '@/constants';
+import { redirect } from 'next/navigation';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
-export default function Home() {
-  const router = useRouter();
-  useEffect(() => {
-    router.push('/users');
-  }, [router]);
-
-  return null;
+export default function RootPage() {
+  redirect(PAGE_PATH.USERS);
 }

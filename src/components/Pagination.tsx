@@ -1,3 +1,7 @@
+'use client';
+
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useCallback } from 'react';
 import { getPageNumbers } from "@/utils";
 
 export interface PaginationProps {
@@ -8,12 +12,23 @@ export interface PaginationProps {
     hasPrevPage: boolean;
     hasNextPage: boolean;
     isLoading: boolean;
-    handlePrevPage: () => void;
-    handleNextPage: () => void;
-    handlePageClick: (page: number) => void;
 }
 
-export default function Pagination({ page, total, startIndex, endIndex, hasPrevPage, hasNextPage, isLoading, handlePrevPage, handleNextPage, handlePageClick }: PaginationProps) {
+export default function Pagination({ page, total, startIndex, endIndex, hasPrevPage, hasNextPage, isLoading }: PaginationProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    const buildUrl = useCallback((p: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('page', String(p));
+        return `${pathname}?${params.toString()}`;
+    }, [pathname, searchParams]);
+
+    const handlePrevPage = () => router.push(buildUrl(page - 1));
+    const handleNextPage = () => router.push(buildUrl(page + 1));
+    const handlePageClick = (p: number) => router.push(buildUrl(p));
+
     return (
         <div className="flex gap-4 justify-end items-center mt-6">
             <p className="text-sm text-gray-500">
@@ -23,8 +38,9 @@ export default function Pagination({ page, total, startIndex, endIndex, hasPrevP
             <div className="flex gap-2">
                 <button
                     onClick={handlePrevPage}
+                    disabled={isLoading || !hasPrevPage}
                     className={`px-3 py-1 rounded-md text-sm ${isLoading || !hasPrevPage
-                        ? "bg-blue-600 text-white cursor-not-allowed"
+                        ? "bg-gray-100 text-gray-300 cursor-not-allowed"
                         : "bg-white border text-gray-600 hover:bg-gray-50"
                         }`}
                 >
@@ -50,8 +66,9 @@ export default function Pagination({ page, total, startIndex, endIndex, hasPrevP
                 ))}
                 <button
                     onClick={handleNextPage}
+                    disabled={isLoading || !hasNextPage}
                     className={`px-3 py-1 rounded-md text-sm ${isLoading || !hasNextPage
-                        ? "bg-blue-600 text-white cursor-not-allowed"
+                        ? "bg-gray-100 text-gray-300 cursor-not-allowed"
                         : "bg-white border text-gray-600 hover:bg-gray-50"
                         }`}
                 >

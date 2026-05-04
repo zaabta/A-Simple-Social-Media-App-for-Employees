@@ -28,8 +28,12 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <ReduxProvider>{children}</ReduxProvider>
+      <body suppressHydrationWarning>
+        <div className="min-h-screen bg-gray-50">
+          <ReduxProvider>
+            {children}
+          </ReduxProvider>
+        </div>
       </body>
     </html>
   );

@@ -5,3 +5,6 @@ export { default as Post } from "./Post";
 export { default as UserInfoCard } from "./UserInfoCard";
 export { default as InfoRow } from "./InfoRow";
 export { default as Pagination } from "./Pagination";
+export { default as SortControls } from "./SortControls";
+export { default as FilterControls } from "./FilterControls";
+export { default as SearchBar } from "./SearchBar";

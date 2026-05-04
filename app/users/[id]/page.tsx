@@ -101,9 +101,6 @@ export default async function UserDetailPage({
           hasPrevPage={currentPage > 1}
           hasNextPage={currentPage < totalPages}
           isLoading={false}
-          handlePrevPage={() => currentPage > 1 && (window.location.href = `/users/${userId}?page=${currentPage - 1}`)}
-          handleNextPage={() => currentPage < totalPages && (window.location.href = `/users/${userId}?page=${currentPage + 1}`)}
-          handlePageClick={(page) => window.location.href = `/users/${userId}?page=${page}`}
         />
       )}
     </div>

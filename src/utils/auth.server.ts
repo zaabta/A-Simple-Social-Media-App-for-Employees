@@ -1,7 +1,7 @@
 import { AUTH_TOKEN, AUTH_USER } from '@/constants';
 import type { AuthUser } from '@/redux/auth/types';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { getCookie } from './cookies';
 
 export interface AuthSession {
   token: string;
@@ -14,9 +14,8 @@ export interface AuthSession {
  */
 export async function getAuthSession(): Promise<AuthSession | null> {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(AUTH_TOKEN)?.value;
-    const userJson = cookieStore.get(AUTH_USER)?.value;
+    const token = getCookie(AUTH_TOKEN);
+    const userJson = getCookie(AUTH_USER);
 
     if (!token || !userJson) {
       return null;

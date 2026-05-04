@@ -1,4 +1,4 @@
-import { GENDER, SAME_SITE } from "@/constants";
+import { DEFAULT_PAGE_SIZE, GENDER, SAME_SITE, SORT_ORDERS } from "@/constants";
 
 export interface Address {
   address: string;
@@ -36,6 +36,20 @@ export interface ApiResponse<T> {
   error?: string;
   message?: string;
   status?: number;
+}
+
+export interface UsersUrlParams {
+  page: number,
+  query: string,
+  sortFirstName: SORT_ORDERS | null,
+  sortAge: SORT_ORDERS | null,
+  filters: {
+    city: string,
+    job: string,
+    gender: string
+  },
+  skip: number;
+  limit: number;
 }
 
 export interface PaginationParams {
