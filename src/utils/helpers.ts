@@ -33,7 +33,7 @@ export const formatEmail = (email: string): string => {
 /**
  * Debounce function
  */
-export const debounce = <T extends (...args: unknown[]) => unknown>(
+export const debounce = <T extends (...args: Parameters<T>) => unknown>(
   func: T,
   wait: number
 ): ((...args: Parameters<T>) => void) => {

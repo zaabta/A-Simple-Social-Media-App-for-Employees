@@ -1,9 +1,9 @@
 'use client';
 
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { getPageNumbers } from "@/utils";
 import { DEFAULT_PAGE_SIZE } from '@/constants';
+import { useBuildUrl } from '@/hooks/useBuildUrl';
 
 export interface PaginationProps {
     page: number;
@@ -17,18 +17,11 @@ export interface PaginationProps {
 
 export default function Pagination({ page, total, startIndex, endIndex, hasPrevPage, hasNextPage, isLoading }: PaginationProps) {
     const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
+    const buildUrl = useBuildUrl();
 
-    const buildUrl = useCallback((p: number) => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('page', String(p));
-        return `${pathname}?${params.toString()}`;
-    }, [pathname, searchParams]);
-
-    const handlePrevPage = () => router.push(buildUrl(page - 1));
-    const handleNextPage = () => router.push(buildUrl(page + 1));
-    const handlePageClick = (p: number) => router.push(buildUrl(p));
+    const handlePrevPage = () => router.push(buildUrl({ page: String(page - 1) }));
+    const handleNextPage = () => router.push(buildUrl({ page: String(page + 1) }));
+    const handlePageClick = (p: number) => router.push(buildUrl({ page: String(p) }));
 
     return (
         <div className="flex gap-4 justify-end items-center mt-6">

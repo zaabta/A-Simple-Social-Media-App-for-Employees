@@ -1,7 +1,8 @@
 'use client';
 
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useState, useCallback } from 'react';
+import { useBuildUrl, useDebouncedRouter } from '@/hooks';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 type Props = {
     initialValue: string;
@@ -11,30 +12,20 @@ type Props = {
 export default function SearchBar({ initialValue, disabled }: Props) {
     const [searchInput, setSearchInput] = useState(initialValue);
     const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
+    const buildUrl = useBuildUrl();
+    const { debouncedPush } = useDebouncedRouter(300);
 
-    const buildUrl = useCallback(
-        (search: string) => {
-            const params = new URLSearchParams(searchParams.toString());
-            params.set('page', '1');
-            if (!search.trim()) {
-                params.delete('search');
-            } else {
-                params.set('search', search.trim());
-            }
-            return `${pathname}?${params.toString()}`;
-        },
-        [pathname, searchParams]
-    );
+    useEffect(() => {
+        if (!searchInput) debouncedPush(buildUrl({ search: '' }));
+    }, [searchInput]);
 
     const handleSubmit = () => {
-        router.push(buildUrl(searchInput));
+        router.push(buildUrl({ search: searchInput }));
     };
 
     const handleClear = () => {
         setSearchInput('');
-        router.push(buildUrl(''));
+        router.push(buildUrl({ search: '' }));
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

@@ -1,9 +1,8 @@
 'use client';
-
-import { useCallback } from "react";
 import DropDown, { Options } from "./DropDown";
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { FILTER_TYPE } from "@/constants";
+import { useBuildUrl } from "@/hooks/useBuildUrl";
 
 
 export interface FilterControlsProps {
@@ -17,35 +16,18 @@ export interface FilterControlsProps {
 
 export default function FilterControls({ cities, jobTitles, genders, activeCity, activeJob, activeGender }: FilterControlsProps) {
     const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
-
-    const buildUrl = useCallback(
-        (updates: Record<string, string | undefined>) => {
-            const params = new URLSearchParams(searchParams.toString());
-            params.set('page', '1');
-            for (const [key, val] of Object.entries(updates)) {
-                if (!val) {
-                    params.delete(key);
-                } else {
-                    params.set(key, val);
-                }
-            }
-            return `${pathname}?${params.toString()}`;
-        },
-        [pathname, searchParams]
-    );
+        const buildUrl = useBuildUrl();
 
     const handleFilter = (type: FILTER_TYPE, value: string) => {
         switch (type) {
             case FILTER_TYPE.CITY:
-                router.push(buildUrl({ city: value, job: undefined, gender: undefined }));
+                router.push(buildUrl({ city: value, job: null, gender: null }));
                 break;
             case FILTER_TYPE.JOB:
-                router.push(buildUrl({ job: value, city: undefined, gender: undefined }));
+                router.push(buildUrl({ job: value, city: null, gender: null }));
                 break;
             case FILTER_TYPE.GENDER:
-                router.push(buildUrl({ gender: value, city: undefined, job: undefined }));
+                router.push(buildUrl({ gender: value, city: null, job: null }));
                 break;
         }
     };
