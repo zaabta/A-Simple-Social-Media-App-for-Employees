@@ -1,9 +1,8 @@
 import { requireAuth } from '@/utils/auth.server';
 import { Pagination, Post, UserInfoCard } from '@/components';
-import { User } from '@/types';
+import { SingleUser } from '@/types';
 import { usersService } from '@/redux/users/service';
 import { PostsResponse } from '@/redux/users/types';
-import { usersActions } from '@/redux/users/actions';
 import { DEFAULT_PAGE_SIZE } from '@/constants';
 
 interface UserDetailPageProps {
@@ -12,7 +11,7 @@ interface UserDetailPageProps {
 }
 
 interface PageData {
-  user: User;
+  user: SingleUser;
   posts: PostsResponse;
   currentPage: number;
   totalPages: number;

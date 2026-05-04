@@ -1,4 +1,4 @@
-import { DEFAULT_PAGE_SIZE, GENDER, SAME_SITE, SORT_ORDERS } from "@/constants";
+import { GENDER, SAME_SITE, SORT_ORDERS } from "@/constants";
 
 export interface Address {
   address: string;
@@ -13,7 +13,7 @@ export interface Address {
   stateCode: string;
 }
 
-export interface User {
+export interface SingleUser {
   id: number;
   username: string;
   email: string;

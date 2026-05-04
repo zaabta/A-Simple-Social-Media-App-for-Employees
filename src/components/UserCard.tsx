@@ -2,10 +2,10 @@
 import { useRouter } from 'next/navigation';
 import { GENDER, User_card_FIELD } from "@/constants";
 import Badge, { BadgeColor } from "./Badge";
-import { User } from '@/types';
+import { SingleUser } from '@/types';
 
 export type UserCardProps = {
-    user: User;
+    user: SingleUser;
     isAuthenticated: boolean;
     visibleFields?: readonly User_card_FIELD[];
 };

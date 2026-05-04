@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { User } from '@/types';
+import type { SingleUser } from '@/types';
 import type { UsersState, FetchUsersPayload, SearchUsersPayload, FetchUserByIdPayload, FilterUsersPayload, UsersResponse, SortUsersPayload } from './types';
 import { DEFAULT_PAGE_SIZE, FILTER_TYPE } from '@/constants';
 
@@ -55,7 +55,7 @@ const usersSlice = createSlice({
       state.error = null;
     },
 
-    fetchUserByIdSuccess: (state, action: PayloadAction<User>) => {
+    fetchUserByIdSuccess: (state, action: PayloadAction<SingleUser>) => {
       state.loading = false;
       state.selectedUser = action.payload;
       state.error = null;
