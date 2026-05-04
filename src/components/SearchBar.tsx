@@ -13,7 +13,6 @@ export default function SearchBar({ initialValue, disabled }: Props) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const [input, setInput] = useState(initialValue);
 
     const buildUrl = useCallback(
         (search: string) => {
@@ -30,11 +29,11 @@ export default function SearchBar({ initialValue, disabled }: Props) {
     );
 
     const handleSubmit = () => {
-        router.push(buildUrl(input));
+        router.push(buildUrl(searchInput));
     };
 
     const handleClear = () => {
-        setInput('');
+        setSearchInput('');
         router.push(buildUrl(''));
     };
 
