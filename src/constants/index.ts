@@ -122,3 +122,30 @@ export const AUTH_FIELDS = [
   User_card_FIELD.CITY,
   User_card_FIELD.JOB,
 ] as const;
+
+/** External DummyJSON API endpoints */
+export const API_ENDPOINTS = {
+  // Auth
+  AUTH: {
+    LOGIN: '/auth/login',
+    VALIDATE: '/auth/validate',
+    REFRESH: '/auth/refresh',
+  },
+  // Users
+  USERS: {
+    LIST: '/users',
+    SEARCH: '/users/search',
+    FILTER: '/users/filter',
+    ALL: '/users?limit=0',
+    BY_ID: (id: number) => `/users/${id}`,
+    POSTS: (id: number, skip: number, limit: number) =>
+      `/users/${id}/posts?skip=${skip}&limit=${limit}`,
+  },
+};
+
+/** Internal Next.js API route endpoints */
+export const INTERNAL_API = {
+  AUTH: {
+    SET_COOKIES: '/api/auth/set-cookies',
+  },
+} as const;

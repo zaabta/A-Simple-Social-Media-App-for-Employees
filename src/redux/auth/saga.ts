@@ -10,14 +10,14 @@ import {
   logoutFailure,
 } from './slice';
 import type { LoginPayload } from './types';
-import { PAGE_PATH } from '@/constants';
+import { INTERNAL_API, PAGE_PATH } from '@/constants';
 
 function* loginSaga(action: PayloadAction<LoginPayload>): Generator<any, void, any> {
   try {
     const response = yield call(authService.login, action.payload);
     yield put(loginSuccess(response));
     
-    yield call(fetch, '/api/auth/set-cookies', {
+    yield call(fetch, INTERNAL_API.AUTH.SET_COOKIES, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -6,7 +6,7 @@ import type {
   PostsResponse,
 } from './types';
 import { capitalize, mapOptions } from '@/utils';
-import { FILTER_TYPE, SingleUser, SORT_FIELDS } from '@/index';
+import { API_ENDPOINTS, FILTER_TYPE, SingleUser, SORT_FIELDS } from '@/index';
 
 export const usersService = {
   fetchUsers: async (payload: FetchUsersPayload): Promise<UsersResponse> => {
@@ -24,41 +24,30 @@ export const usersService = {
     const sortFirstName = firstName ?? sortByFirstNameOrder;
     const sortAge = age ?? sortByAgeOrder;
 
-    let baseUrl = '/users';
+    let baseUrl = API_ENDPOINTS.USERS.LIST;
     const params = new URLSearchParams({
       skip: String(skip),
       limit: String(limit),
     });
 
-    // 🔍 SEARCH
     if (query) {
-      baseUrl = '/users/search';
+      baseUrl = API_ENDPOINTS.USERS.SEARCH;
       params.append('q', query);
-    }
-    // 🎯 FILTER (only one at a time - API limitation)
-    else if (filters) {
+    } else if (filters) {
       let key = '';
       let value = '';
 
-      if (filters.city) {
-        key = FILTER_TYPE.CITY;
-        value = filters.city;
-      } else if (filters.job) {
-        key = FILTER_TYPE.JOB;
-        value = filters.job;
-      } else if (filters.gender) {
-        key = FILTER_TYPE.GENDER;
-        value = filters.gender;
-      }
+      if (filters.city) { key = FILTER_TYPE.CITY; value = filters.city; }
+      else if (filters.job) { key = FILTER_TYPE.JOB; value = filters.job; }
+      else if (filters.gender) { key = FILTER_TYPE.GENDER; value = filters.gender; }
 
       if (key && value) {
-        baseUrl = '/users/filter';
+        baseUrl = API_ENDPOINTS.USERS.FILTER;
         params.append('key', key);
         params.append('value', value);
       }
     }
 
-    // 🔄 SORT (only one primary sort)
     if (sortFirstName) {
       params.append('sortBy', SORT_FIELDS.FIRST_NAME);
       params.append('order', sortFirstName);
@@ -67,20 +56,16 @@ export const usersService = {
       params.append('order', sortAge);
     }
 
-    const response = await apiClient.get<UsersResponse>(
-      `${baseUrl}?${params.toString()}`
-    );
-
-    return response;
+    return apiClient.get<UsersResponse>(`${baseUrl}?${params.toString()}`);
   },
 
   fetchUserById: async (id: number): Promise<SingleUser> => {
-    return apiClient.get<SingleUser>(`/users/${id}`);
+    return apiClient.get<SingleUser>(API_ENDPOINTS.USERS.BY_ID(id));
   },
 
   getFilterOptions: async (): Promise<FilterOptions> => {
     try {
-      const response = await apiClient.get<UsersResponse>('/users?limit=0');
+      const response = await apiClient.get<UsersResponse>(API_ENDPOINTS.USERS.ALL);
 
       const cities = new Set<string>();
       const jobTitles = new Set<string>();
@@ -99,28 +84,21 @@ export const usersService = {
       };
     } catch (error) {
       console.error('Failed to fetch filter options:', error);
-      return {
-        cities: [],
-        jobTitles: [],
-        genders: [],
-      };
+      return { cities: [], jobTitles: [], genders: [] };
     }
   },
 
   getUsersCount: async (): Promise<number> => {
-    const response = await apiClient.get<UsersResponse>('/users?limit=1');
+    const response = await apiClient.get<UsersResponse>(`${API_ENDPOINTS.USERS.LIST}?limit=1`);
     return response.total;
   },
 
   getUserPosts: async (userId: number, skip: number = 0, limit: number = 10): Promise<PostsResponse> => {
-      try {
-        const response = await apiClient.get<PostsResponse>(
-          `/users/${userId}/posts?skip=${skip}&limit=${limit}`
-        );
-        return response;
-      } catch (error) {
-        console.error(`Failed to fetch posts for user ${userId}:`, error);
-        throw error;
-      }
+    try {
+      return await apiClient.get<PostsResponse>(API_ENDPOINTS.USERS.POSTS(userId, skip, limit));
+    } catch (error) {
+      console.error(`Failed to fetch posts for user ${userId}:`, error);
+      throw error;
     }
+  },
 };
