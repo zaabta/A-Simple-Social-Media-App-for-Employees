@@ -92,9 +92,9 @@ export default async function UserDetailPage({
       {totalPages > 1 && (
         <Pagination
           page={currentPage}
-          total={totalPages}
-          startIndex={totalPages === 0 ? 0 : (currentPage - 1) * DEFAULT_PAGE_SIZE + 1}
-          endIndex={totalPages === 0 ? 0 : Math.min(currentPage * DEFAULT_PAGE_SIZE, posts.total)}
+          total={posts.total}
+          startIndex={posts.total === 0 ? 0 : (currentPage - 1) * DEFAULT_PAGE_SIZE + 1}
+          endIndex={posts.total === 0 ? 0 : Math.min(currentPage * DEFAULT_PAGE_SIZE, posts.total)}
           hasPrevPage={currentPage > 1}
           hasNextPage={currentPage < totalPages}
           isLoading={false}
