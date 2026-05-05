@@ -32,7 +32,7 @@ export default function UserCard({ user, visibleFields }: UserCardProps) {
                 {show(User_card_FIELD.CITY) && <Badge text={address?.city || "Unknown City"} />}
                 <div className="flex items-center justify-between">
                     {show(User_card_FIELD.GENDER) && <Badge className="capitalize font-semibold " text={String(gender)} color={gender === GENDER.MALE ? BadgeColor.BLUE : BadgeColor.PINK} />}
-                    {show(User_card_FIELD.JOB) && <span className="text-xs text-gray-500">{company.name}</span>}
+                    {show(User_card_FIELD.JOB) && <span className="text-xs text-gray-500">{company.title}</span>}
                 </div>
             </div>
         </div>
