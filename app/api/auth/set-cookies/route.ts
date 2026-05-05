@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AUTH_TOKEN, AUTH_USER, AUTH_COOKIE_OPTIONS, SERVER_AUTH_COOKIE_OPTIONS } from '@/constants';
+import { AUTH_TOKEN, AUTH_USER, SERVER_AUTH_COOKIE_OPTIONS } from '@/constants';
 
 export async function POST(request: NextRequest) {
     try {

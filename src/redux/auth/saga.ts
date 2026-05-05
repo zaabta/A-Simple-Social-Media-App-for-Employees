@@ -10,35 +10,35 @@ import {
   logoutFailure,
 } from './slice';
 import type { LoginPayload } from './types';
-import { INTERNAL_API, PAGE_PATH } from '@/constants';
+import { ERROR_MESSAGES, INTERNAL_API, PAGE_PATH } from '@/constants';
 
 function* loginSaga(action: PayloadAction<LoginPayload>): Generator<any, void, any> {
   try {
     const response = yield call(authService.login, action.payload);
-    yield put(loginSuccess(response));
-    
-    yield call(fetch, INTERNAL_API.AUTH.SET_COOKIES, {
+
+    const user = {
+      id: response.id,
+      username: response.username,
+      email: response.email,
+      firstName: response.firstName,
+      lastName: response.lastName,
+      image: response.image,
+      gender: response.gender,
+    };
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    yield call(fetch, `${baseUrl}${INTERNAL_API.AUTH.SET_COOKIES}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        token: response.accessToken,
-        user: {
-          id: response.id,
-          username: response.username,
-          email: response.email,
-          firstName: response.firstName,
-          lastName: response.lastName,
-          image: response.image,
-          gender: response.gender,
-        },
-      }),
+      body: JSON.stringify({ token: response.accessToken, user }),
     });
 
+    yield put(loginSuccess(response));
+
     if (typeof window !== 'undefined') {
-      window.location.href = PAGE_PATH.USERS;
+      window.location.href = '/users';
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Login failed';
+    const errorMessage = error instanceof Error ? error.message : ERROR_MESSAGES.LOGIN_FAILED;
     yield put(loginFailure(errorMessage));
   }
 }
@@ -53,7 +53,7 @@ function* logoutSaga(): Generator<any, void, any> {
       window.location.href = PAGE_PATH.LOGIN;
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Logout failed';
+    const errorMessage = error instanceof Error ? error.message : ERROR_MESSAGES.LOGOUT_FAILED;
     yield put(logoutFailure(errorMessage));
   }
 }

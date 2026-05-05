@@ -23,6 +23,8 @@ export const ERROR_MESSAGES = {
   NETWORK_ERROR: 'Network error. Please check your connection.',
   VALIDATION_ERROR: 'Validation error. Please check your input.',
   NOT_FOUND: 'Resource not found.',
+  LOGIN_FAILED: 'Login failed.',
+  LOGOUT_FAILED: 'Logout failed',
 };
 
 export const SUCCESS_MESSAGES = {

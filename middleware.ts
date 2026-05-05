@@ -9,7 +9,9 @@ export function middleware(request: NextRequest) {
     if (isProtected && !token) {
         const loginUrl = new URL(PAGE_PATH.LOGIN, request.url);
         loginUrl.searchParams.set('redirectBack', pathname);
-        return NextResponse.redirect(loginUrl, 301);
+        const response = NextResponse.redirect(loginUrl, 307);
+        response.headers.set('Cache-Control', 'no-store');
+        return response;
     }
 
     return NextResponse.next();
