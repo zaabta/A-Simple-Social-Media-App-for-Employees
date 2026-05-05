@@ -3,15 +3,15 @@ import { CookieOptions } from "../types";
 /**
  * Client-side cookie utilities
  */
-export function setCookie(key: string, value: string, options: CookieOptions): void {
+export function setCookie(key: string, value: string, options?: CookieOptions): void {
   if (typeof document === 'undefined') {
     return;
   }
 
   const {
-    maxAge = 7 * 24 * 60 * 60, // 7 days
+    maxAge = 7 * 24 * 60 * 60,
     path = '/',
-    secure = true,
+    secure = process.env.NODE_ENV === 'production',
     sameSite = 'Lax',
   } = options || {};
 
@@ -21,7 +21,9 @@ export function setCookie(key: string, value: string, options: CookieOptions): v
     cookieStr += `;max-age=${maxAge}`;
   }
 
-  if (secure) {
+  // Only add secure flag in production — Vercel serves HTTPS so this is safe
+  // In local dev (http://localhost) secure cookies are silently dropped by the browser
+  if (secure && typeof window !== 'undefined' && window.location.protocol === 'https:') {
     cookieStr += ';secure';
   }
 
@@ -51,5 +53,7 @@ export function getCookie(key: string): string | null {
 }
 
 export function removeCookie(key: string): void {
-  setCookie(key, '', { maxAge: -1 });
+  if (typeof document === 'undefined') return;
+  // Must match the same path used when setting
+  document.cookie = `${key}=;path=/;max-age=-1`;
 }
