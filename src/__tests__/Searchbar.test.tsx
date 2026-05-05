@@ -13,17 +13,17 @@ describe('SearchBar', () => {
 
     it('renders with initial value', () => {
         render(<SearchBar initialValue="hello" />);
-        expect(screen.getByPlaceholderText('Search')).toHaveValue('hello');
+        expect(screen.getByPlaceholderText('Search users...')).toHaveValue('hello');
     });
 
     it('renders with empty initial value', () => {
         render(<SearchBar initialValue="" />);
-        expect(screen.getByPlaceholderText('Search')).toHaveValue('');
+        expect(screen.getByPlaceholderText('Search users...')).toHaveValue('');
     });
 
     it('updates input value on change', () => {
         render(<SearchBar initialValue="" />);
-        const input = screen.getByPlaceholderText('Search');
+        const input = screen.getByPlaceholderText('Search users...');
         fireEvent.change(input, { target: { value: 'john' } });
         expect(input).toHaveValue('john');
     });
@@ -40,7 +40,7 @@ describe('SearchBar', () => {
 
     it('navigates on Enter key', () => {
         render(<SearchBar initialValue="" />);
-        const input = screen.getByPlaceholderText('Search');
+        const input = screen.getByPlaceholderText('Search users...');
         fireEvent.change(input, { target: { value: 'john' } });
         fireEvent.keyDown(input, { key: 'Enter' });
         expect(mockPush).toHaveBeenCalled();
@@ -48,7 +48,7 @@ describe('SearchBar', () => {
 
     it('clears input and navigates on Escape key', () => {
         render(<SearchBar initialValue="john" />);
-        const input = screen.getByPlaceholderText('Search');
+        const input = screen.getByPlaceholderText('Search users...');
         fireEvent.keyDown(input, { key: 'Escape' });
         expect(input).toHaveValue('');
         expect(mockPush).toHaveBeenCalled();
@@ -56,7 +56,7 @@ describe('SearchBar', () => {
 
     it('triggers debounced navigation when input is cleared by typing', () => {
         render(<SearchBar initialValue="john" />);
-        const input = screen.getByPlaceholderText('Search');
+        const input = screen.getByPlaceholderText('Search users...');
         fireEvent.change(input, { target: { value: '' } });
         expect(input).toHaveValue('');
     });
