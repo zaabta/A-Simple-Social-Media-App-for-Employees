@@ -1,15 +1,17 @@
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
+RUN npm install -g pnpm
 WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN pnpm  ci
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
+RUN npm install -g pnpm
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm  run build
+RUN pnpm build
 
 # Stage 3: Runner
 FROM node:20-alpine AS runner
