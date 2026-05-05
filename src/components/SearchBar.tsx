@@ -2,7 +2,7 @@
 
 import { useBuildUrl, useDebouncedRouter } from '@/hooks';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 type Props = {
     initialValue: string;
@@ -15,10 +15,11 @@ export default function SearchBar({ initialValue, disabled }: Props) {
     const buildUrl = useBuildUrl();
     const { debouncedPush } = useDebouncedRouter(300);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
-        const val = e.target.value
-        if (!val) debouncedPush(buildUrl({ search: '' }));
-        setSearchInput(val)
+    const handleChange = (value: string) => {
+        setSearchInput(value);
+        if (!value.trim()) {
+            debouncedPush(buildUrl({ search: '' }));
+        }
     };
 
     const handleSubmit = () => {
@@ -36,25 +37,37 @@ export default function SearchBar({ initialValue, disabled }: Props) {
     };
 
     return (
-        <div className='flex gap-2'>
-            <div className="border border-gray-300 rounded-lg bg-white flex gap-1 items-center w-full px-2">
-                <img src="/assets/search.svg" alt="Search" className="w-5 h-5" />
+        <div className="flex gap-2">
+            <div className="flex items-center gap-2 border border-gray-300 rounded-lg bg-white px-3 w-full focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition">
+                <img src="/assets/search.svg" alt="Search" className="w-4 h-4 shrink-0 opacity-50" />
                 <input
                     type="text"
                     value={searchInput}
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Search"
-                    className="w-full px-0 py-1 text-black text-sm border border-none rounded-lg focus:outline-none"
+                    placeholder="Search users..."
+                    disabled={disabled}
+                    className="w-full py-2 text-sm text-gray-800 bg-transparent focus:outline-none placeholder:text-gray-400"
                 />
+                {searchInput && (
+                    <button
+                        onClick={handleClear}
+                        className="text-gray-400 hover:text-gray-600 shrink-0 text-lg leading-none"
+                        aria-label="Clear search"
+                    >
+                        ×
+                    </button>
+                )}
             </div>
             <button
                 onClick={handleSubmit}
                 disabled={disabled || !searchInput.trim()}
-                className={`bg-blue-${searchInput.trim() ? '600' : '100'} w-25 flex gap-x-0.5 items-center justify-left text-white text-sm py-2 px-2 rounded-md`}
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-200 disabled:cursor-not-allowed text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors shrink-0"
             >
-                <img src="/assets/search.svg" alt="Search" className="w-5 h-5" />
-                Search
+                <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 stroke-current" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14.9536 14.9458L21 21M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" />
+                </svg>
+                <span className="hidden sm:inline">Search</span>
             </button>
         </div>
     );

@@ -15,7 +15,6 @@ export interface UsersPageProps {
   };
 };
 
-
 export default async function UsersPage({ searchParams }: UsersPageProps) {
   const cookieStore = await cookies();
   const token = cookieStore.get(AUTH_TOKEN);
@@ -35,7 +34,6 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
     limit: DEFAULT_PAGE_SIZE,
   };
 
-
   const [usersData, filterOptions] = await Promise.all([
     usersService.fetchUsers(urlParams),
     usersService.getFilterOptions(),
@@ -49,9 +47,9 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
   const visibleFields = isAuthenticated ? AUTH_FIELDS : GUEST_FIELDS;
 
   return (
-    <div className="flex flex-col gap-4 mx-auto p-12">
+    <div className="flex flex-col gap-4">
       {isAuthenticated && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           <SortControls
             sortFirstName={urlParams.firstName}
             sortAge={urlParams.age}
@@ -68,14 +66,13 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
         </div>
       )}
 
-      {/* ── Results ── */}
       {users.length === 0 ? (
-        <div className="flex justify-center items-center py-12">
-          <p className="text-lg text-gray-500">No users found.</p>
+        <div className="flex justify-center items-center py-20">
+          <p className="text-lg text-gray-400">No users found.</p>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {users.map((user) => (
               <UserCard
                 key={user.id}

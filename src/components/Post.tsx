@@ -1,4 +1,4 @@
-import Badge, { BadgeColor } from "./Badge";
+import Badge, { BadgeColor } from './Badge';
 
 export type PostProps = {
     title: string;
@@ -12,33 +12,31 @@ export type PostProps = {
 
 export default function Post({ title, body, tags, reactions }: PostProps) {
     return (
-        <div
-            className="flex flex-col gap-2 items-start bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow"
-        >
-            <h3 className="text-lg font-bold text-gray-900">
+        <div className="flex flex-col gap-3 bg-white shadow-sm rounded-xl p-4 sm:p-6 hover:shadow-md transition-shadow border border-gray-100">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 leading-snug">
                 {title}
             </h3>
-            <p className="text-gray-700">{body}</p>
-
-            <div className="w-full flex justify-between items-center">
-                <div className="flex flex-wrap gap-2">
+            <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+                {body}
+            </p>
+            <div className="flex flex-wrap justify-between items-center gap-2 pt-1">
+                <div className="flex flex-wrap gap-1.5">
                     {tags?.map((tag) => (
-                        <Badge key={tag} text={tag} color={BadgeColor.BLUE} />
+                        <Badge key={tag} text={`#${tag}`} color={BadgeColor.BLUE} />
                     ))}
                 </div>
-                {/* Reactions */}
                 {reactions && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-3 text-sm shrink-0">
                         {reactions.likes !== undefined && (
-                            <span className="flex items-center gap-0.5">
-                                <img src="/assets/green-up-arrow.svg" alt="Like" className="w-4 h-4" />
-                                <label htmlFor="like" className="text-green-600">{reactions.likes}</label>
+                            <span className="flex items-center gap-1 text-green-600 font-medium">
+                                <img src="/assets/green-up-arrow.svg" alt="Likes" className="w-4 h-4" />
+                                {reactions.likes}
                             </span>
                         )}
                         {reactions.dislikes !== undefined && (
-                            <span className="flex  items-center gap-0.5">
-                                <img src="/assets/red-down-arrow.svg" alt="Dislike" className="w-4 h-4" />
-                                <label htmlFor="dislike" className="text-red-600">{reactions.dislikes}</label>
+                            <span className="flex items-center gap-1 text-red-500 font-medium">
+                                <img src="/assets/red-down-arrow.svg" alt="Dislikes" className="w-4 h-4" />
+                                {reactions.dislikes}
                             </span>
                         )}
                     </div>

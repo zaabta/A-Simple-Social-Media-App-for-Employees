@@ -1,9 +1,8 @@
 'use client';
-import DropDown, { Options } from "./DropDown";
+import DropDown, { Options } from './DropDown';
 import { useRouter } from 'next/navigation';
-import { FILTER_TYPE } from "@/constants";
-import { useBuildUrl } from "@/hooks/useBuildUrl";
-
+import { FILTER_TYPE } from '@/constants';
+import { useBuildUrl } from '@/hooks/useBuildUrl';
 
 export interface FilterControlsProps {
     cities: Options[];
@@ -12,11 +11,11 @@ export interface FilterControlsProps {
     activeCity: string;
     activeJob: string;
     activeGender: string;
-};
+}
 
 export default function FilterControls({ cities, jobTitles, genders, activeCity, activeJob, activeGender }: FilterControlsProps) {
     const router = useRouter();
-        const buildUrl = useBuildUrl();
+    const buildUrl = useBuildUrl();
 
     const handleFilter = (type: FILTER_TYPE, value: string) => {
         switch (type) {
@@ -33,25 +32,27 @@ export default function FilterControls({ cities, jobTitles, genders, activeCity,
     };
 
     return (
-        <div className="flex items-center justify-left gap-4 bg-white p-4 rounded-lg shadow">
-            <DropDown
-                label="City"
-                options={cities}
-                value={activeCity}
-                onSelect={(value) => handleFilter(FILTER_TYPE.CITY, value)}
-            />
-            <DropDown
-                label="Title"
-                options={jobTitles}
-                value={activeJob}
-                onSelect={(value) => handleFilter(FILTER_TYPE.JOB, value)}
-            />
-            <DropDown
-                label="Gender"
-                options={genders}
-                value={activeGender}
-                onSelect={(value) => handleFilter(FILTER_TYPE.GENDER, value)}
-            />
+        <div className="bg-white p-3 sm:p-4 rounded-lg shadow">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <DropDown
+                    label="City"
+                    options={cities}
+                    value={activeCity}
+                    onSelect={(value) => handleFilter(FILTER_TYPE.CITY, value)}
+                />
+                <DropDown
+                    label="Title"
+                    options={jobTitles}
+                    value={activeJob}
+                    onSelect={(value) => handleFilter(FILTER_TYPE.JOB, value)}
+                />
+                <DropDown
+                    label="Gender"
+                    options={genders}
+                    value={activeGender}
+                    onSelect={(value) => handleFilter(FILTER_TYPE.GENDER, value)}
+                />
+            </div>
         </div>
     );
 }

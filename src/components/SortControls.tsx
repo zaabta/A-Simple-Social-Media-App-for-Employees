@@ -1,8 +1,8 @@
 'use client';
-import { useRouter } from "next/dist/client/components/navigation";
-import { SORT_ORDERS } from "@/constants";
-import { toggleSortOrder } from "@/utils";
-import { useBuildUrl } from "@/hooks/useBuildUrl";
+import { useRouter } from 'next/navigation';
+import { SORT_ORDERS } from '@/constants';
+import { toggleSortOrder } from '@/utils';
+import { useBuildUrl } from '@/hooks/useBuildUrl';
 
 export type SortControlsProps = {
     sortFirstName: SORT_ORDERS | null;
@@ -14,27 +14,49 @@ export default function SortControls({ sortFirstName, sortAge }: SortControlsPro
     const buildUrl = useBuildUrl();
 
     const handleSortFirstName = () => {
-        const order = toggleSortOrder(sortFirstName);
-        router.push(buildUrl({ firstName: order, age: null }));
+        router.push(buildUrl({ firstName: toggleSortOrder(sortFirstName), age: null }));
     };
 
     const handleSortAge = () => {
-        const next = toggleSortOrder(sortAge);
-        router.push(buildUrl({ age: next, firstName: null }));
+        router.push(buildUrl({ age: toggleSortOrder(sortAge), firstName: null }));
     };
-    return (<div className="flex gap-4 items-center justify-left bg-white p-4 rounded-lg shadow">
-        <button
-            onClick={handleSortFirstName}
-            className="flex gap-2 bg-gray-100 hover:bg-gray-200 capitalize text-sm text-gray-700 border border-gray-300 py-2 px-4 rounded-lg">
-            sort by first name
-            {sortFirstName && <img src={`/assets/${sortFirstName === SORT_ORDERS.ASC ? 'up' : 'down'}-arrow.svg`} alt="Sort" className="w-4 h-4 inline-block ml-1" />}
-        </button>
-        <button
-            onClick={handleSortAge}
-            className="flex gap-2 bg-gray-100 hover:bg-gray-200 capitalize text-sm text-gray-700 border border-gray-300 py-2 px-4 rounded-lg"
-        >
-            sort by age
-            {sortAge && <img src={`/assets/${sortAge === SORT_ORDERS.ASC ? 'up' : 'down'}-arrow.svg`} alt="Sort" className="w-4 h-4 inline-block ml-1" />}
-        </button>
-    </div>);
+
+    return (
+        <div className="flex flex-wrap gap-2 sm:gap-3 items-center bg-white p-3 sm:p-4 rounded-lg shadow">
+            <button
+                onClick={handleSortFirstName}
+                className={`flex items-center gap-2 text-sm border py-2 px-3 sm:px-4 rounded-lg transition-colors
+                    ${sortFirstName
+                        ? 'bg-blue-50 border-blue-300 text-blue-700 font-medium'
+                        : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+                    }`}
+            >
+                <span className="hidden sm:inline">Sort by </span>First Name
+                {sortFirstName && (
+                    <img
+                        src={`/assets/${sortFirstName === SORT_ORDERS.ASC ? 'up' : 'down'}-arrow.svg`}
+                        alt={sortFirstName}
+                        className="w-4 h-4"
+                    />
+                )}
+            </button>
+            <button
+                onClick={handleSortAge}
+                className={`flex items-center gap-2 text-sm border py-2 px-3 sm:px-4 rounded-lg transition-colors
+                    ${sortAge
+                        ? 'bg-blue-50 border-blue-300 text-blue-700 font-medium'
+                        : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+                    }`}
+            >
+                <span className="hidden sm:inline">Sort by </span>Age
+                {sortAge && (
+                    <img
+                        src={`/assets/${sortAge === SORT_ORDERS.ASC ? 'up' : 'down'}-arrow.svg`}
+                        alt={sortAge}
+                        className="w-4 h-4"
+                    />
+                )}
+            </button>
+        </div>
+    );
 }
