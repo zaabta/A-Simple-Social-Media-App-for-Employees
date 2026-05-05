@@ -1,19 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AUTH_TOKEN, PAGE_PATH } from '@/constants';
 
-const PROTECTED_ROUTES = [PAGE_PATH.USERS+'/'];
-
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const token = request.cookies.get(AUTH_TOKEN)?.value;
-
-    const isProtected = PROTECTED_ROUTES.some(() =>
-        // /users/[id] only — not /users itself
-        pathname.match(/^\/users\/\d+/)
-    );
+    const isProtected = /^\/users\/\d+/.test(pathname);
 
     if (isProtected && !token) {
-        const loginUrl = new URL('/login', request.url);
+        const loginUrl = new URL(PAGE_PATH.LOGIN, request.url);
         loginUrl.searchParams.set('redirectBack', pathname);
         return NextResponse.redirect(loginUrl, 301);
     }
@@ -22,5 +16,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: [`/users/:id*`],
+    matcher: ['/users/:path+'],
 };

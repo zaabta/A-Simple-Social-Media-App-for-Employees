@@ -40,8 +40,8 @@ export enum FILTER_TYPE {
 }
 
 export enum SORT_ORDERS {
-  ASC= 'asc',
-  DESC= 'desc',
+  ASC = 'asc',
+  DESC = 'desc',
 };
 
 export enum SORT_FIELDS {
@@ -54,16 +54,24 @@ export const AUTH_TOKEN = 'authToken';
 export const AUTH_USER = 'authUser';
 
 export enum SAME_SITE {
-  STRICT = 'Strict',
-  LAX = 'Lax',
-  NONE = 'None'
+  STRICT = 'strict',
+  LAX = 'lax',
+  NONE = 'none'
 }
 
-export const AUTH_COOKIE_OPTIONS= {
+export const AUTH_COOKIE_OPTIONS = {
   maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
   secure: process.env.NODE_ENV === 'production',
-  sameSite: SAME_SITE.LAX,
+  sameSite: SAME_SITE.LAX as const,
 }
+
+export const SERVER_AUTH_COOKIE_OPTIONS = {
+  httpOnly: false,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: SAME_SITE.LAX as const,
+  maxAge: AUTH_COOKIE_OPTIONS.maxAge,
+  path: '/',
+};
 
 export const AuthSliceName = 'auth';
 export const UsersSliceName = 'users';
@@ -80,7 +88,7 @@ export enum PAGE_PATH {
   LOGIN = '/login',
   USERS = '/users',
   USER_DETAIL = `/users/:id`,
-} 
+}
 
 export enum User_card_FIELD {
   IMAGE = 'image',

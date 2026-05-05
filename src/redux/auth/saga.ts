@@ -10,15 +10,32 @@ import {
   logoutFailure,
 } from './slice';
 import type { LoginPayload } from './types';
+import { PAGE_PATH } from '@/constants';
 
 function* loginSaga(action: PayloadAction<LoginPayload>): Generator<any, void, any> {
   try {
     const response = yield call(authService.login, action.payload);
     yield put(loginSuccess(response));
+    
+    yield call(fetch, '/api/auth/set-cookies', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: response.accessToken,
+        user: {
+          id: response.id,
+          username: response.username,
+          email: response.email,
+          firstName: response.firstName,
+          lastName: response.lastName,
+          image: response.image,
+          gender: response.gender,
+        },
+      }),
+    });
 
-    // Redirect to users page
     if (typeof window !== 'undefined') {
-      window.location.href = '/users';
+      window.location.href = PAGE_PATH.USERS;
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Login failed';
@@ -31,10 +48,9 @@ function* logoutSaga(): Generator<any, void, any> {
     yield call(authService.logout);
     yield put(logoutSuccess());
 
-    // Redirect to login page
     if (typeof window !== 'undefined') {
       yield delay(500);
-      window.location.href = '/login';
+      window.location.href = PAGE_PATH.LOGIN;
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Logout failed';

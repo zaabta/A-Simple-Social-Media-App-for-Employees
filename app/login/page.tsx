@@ -1,13 +1,21 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector, selectAuth } from '@/redux/hooks';
 import { authActions } from '@/redux/auth/actions';
+import { clearAuthError } from '@/redux/auth/slice';
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();
   const { loading, error, isAuthenticated } = useAppSelector(selectAuth);
   const [formData, setFormData] = useState({ username: '', password: '' });
+  const [successMsg, setSuccessMsg] = useState(false);
+
+  // Clear stale error/success state when the login page mounts
+  useEffect(() => {
+    dispatch(clearAuthError());
+    setSuccessMsg(false);
+  }, [dispatch]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -20,8 +28,16 @@ export default function LoginPage() {
       alert('Please fill in all fields');
       return;
     }
+    setSuccessMsg(false);
     dispatch(authActions.login(formData));
   };
+
+  // Show success only after a fresh login attempt — not from stale Redux state
+  useEffect(() => {
+    if (isAuthenticated && loading === false) {
+      setSuccessMsg(true);
+    }
+  }, [isAuthenticated, loading]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
@@ -34,7 +50,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        {isAuthenticated && (
+        {successMsg && (
           <div className="mb-4 p-3 bg-green-50 border border-green-300 text-green-600 text-sm rounded-lg">
             Login successful! Redirecting...
           </div>
@@ -51,7 +67,7 @@ export default function LoginPage() {
               name="username"
               value={formData.username}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm"
+              className="w-full px-3 py-2 text-gray-200 bg-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm"
               placeholder="Enter your username"
               disabled={loading}
             />
@@ -67,7 +83,7 @@ export default function LoginPage() {
               name="password"
               value={formData.password}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm"
+              className="w-full px-3 py-2 text-gray-200 bg-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm"
               placeholder="Enter your password"
               disabled={loading}
             />
