@@ -38,7 +38,7 @@ export default function UserInfoCard({ firstName, lastName, username, email, job
                     <InfoRow icon={<img className="w-4 h-4" src="/assets/job.svg" alt="Job" />} label="Title" value={job || 'Not specified'} />
                     <InfoRow icon={<img className="w-3.5 h-3.5" src="/assets/profile.svg" alt="Username" />} label="Username" value={<span className="text-blue-600">@{username}</span>} />
                     <InfoRow icon={<img className="w-3.5 h-3.5" src="/assets/profile.svg" alt="Age" />} label="Age" value={`${age} years old`} />
-                    <InfoRow icon={<img className="w-4 h-4" src="/assets/email.svg" alt="Email" />} label="Email" value={<span className="text-blue-600 break-all">{email || 'Not specified'}</span>} />
+                    <InfoRow icon={<img className="w-4 h-4" src="/assets/email.svg" alt="Email" />} label="Email" title={email} value={<span className="text-blue-600">{email || 'Not specified'}</span>} />
                 </div>
             </div>
         </div>
