@@ -10,7 +10,8 @@ import {
   logoutFailure,
 } from './slice';
 import type { LoginPayload } from './types';
-import { ERROR_MESSAGES, INTERNAL_API, PAGE_PATH } from '@/constants';
+import { AUTH_TOKEN, ERROR_MESSAGES, INTERNAL_API, PAGE_PATH } from '@/constants';
+import { waitForCookie } from '@/utils';
 
 function* loginSaga(action: PayloadAction<LoginPayload>): Generator<any, void, any> {
   try {
@@ -25,17 +26,35 @@ function* loginSaga(action: PayloadAction<LoginPayload>): Generator<any, void, a
       image: response.image,
       gender: response.gender,
     };
+
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    yield call(fetch, `${baseUrl}${INTERNAL_API.AUTH.SET_COOKIES}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: response.accessToken, user }),
-    });
+
+    const cookieRes: Response = yield call(
+      fetch,
+      `${baseUrl}${INTERNAL_API.AUTH.SET_COOKIES}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: response.accessToken, user }),
+      }
+    );
+
+    if (!cookieRes.ok) {
+      throw new Error('Failed to set auth cookies');
+    }
+
+    // Poll until browser has actually stored the cookie before navigating
+    // Fixes Vercel production issue where redirect fires before Set-Cookie is processed
+    const cookieSet: boolean = yield call(waitForCookie, AUTH_TOKEN);
+
+    if (!cookieSet) {
+      throw new Error('Cookie was not set in time');
+    }
 
     yield put(loginSuccess(response));
 
     if (typeof window !== 'undefined') {
-      window.location.href = '/users';
+      window.location.href = PAGE_PATH.USERS;
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : ERROR_MESSAGES.LOGIN_FAILED;

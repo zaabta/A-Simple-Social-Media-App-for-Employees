@@ -57,3 +57,16 @@ export function removeCookie(key: string): void {
   // Must match the same path used when setting
   document.cookie = `${key}=;path=/;max-age=-1`;
 }
+
+export function waitForCookie(name: string, maxWaitMs = 3000): Promise<boolean> {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const check = () => {
+      const found = document.cookie.split(';').some(c => c.trim().startsWith(`${name}=`));
+      if (found) return resolve(true);
+      if (Date.now() - start > maxWaitMs) return resolve(false);
+      setTimeout(check, 50);
+    };
+    check();
+  });
+}
