@@ -11,11 +11,7 @@ import {
 } from './slice';
 import type { LoginPayload } from './types';
 import { AUTH_TOKEN, AUTH_USER, ERROR_MESSAGES, PAGE_PATH } from '@/constants';
-import { setCookieDirect } from '@/utils';
-
-function verifyCookie(name: string): boolean {
-  return document.cookie.split(';').some(c => c.trim().startsWith(`${name}=`));
-}
+import { setCookieDirect, verifyCookie } from '@/utils';
 
 function* loginSaga(action: PayloadAction<LoginPayload>): Generator<any, void, any> {
   try {

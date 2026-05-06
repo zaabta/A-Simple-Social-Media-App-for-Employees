@@ -77,7 +77,11 @@ export function setCookieDirect(token: string, user: object) {
   const maxAge = 7 * 24 * 60 * 60;
   const isHttps = window.location.protocol === 'https:';
   const secure = isHttps ? ';Secure' : '';
-  const base = `path=/;max-age=${maxAge};SameSite=Lax${secure}`;
+  const base = `path=/;max-age=${maxAge};SameSite=None${secure};credentials=include;Secure=true`;
   document.cookie = `${AUTH_TOKEN}=${encodeURIComponent(token)};${base}`;
   document.cookie = `${AUTH_USER}=${encodeURIComponent(JSON.stringify(user))};${base}`;
+}
+
+export function verifyCookie(name: string): boolean {
+  return document.cookie.split(';').some(c => c.trim().startsWith(`${name}=`));
 }
