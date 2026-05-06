@@ -1,3 +1,4 @@
+import { AUTH_TOKEN, AUTH_USER } from "@/constants";
 import { CookieOptions } from "../types";
 
 /**
@@ -56,4 +57,31 @@ export function removeCookie(key: string): void {
   if (typeof document === 'undefined') return;
   // Must match the same path used when setting
   document.cookie = `${key}=;path=/;max-age=-1`;
+}
+
+export function waitForCookie(name: string, maxWaitMs = 3000): Promise<boolean> {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const check = () => {
+      const found = document.cookie.split(';').some(c => c.trim().startsWith(`${name}=`));
+      if (found) return resolve(true);
+      if (Date.now() - start > maxWaitMs) return resolve(false);
+      setTimeout(check, 50);
+    };
+    check();
+  });
+}
+
+
+export function setCookieDirect(token: string, user: object) {
+  const maxAge = 7 * 24 * 60 * 60;
+  const isHttps = window.location.protocol === 'https:';
+  const secure = isHttps ? ';Secure' : '';
+  const base = `path=/;max-age=${maxAge};SameSite=None${secure};credentials=include;Secure=true`;
+  document.cookie = `${AUTH_TOKEN}=${encodeURIComponent(token)};${base}`;
+  document.cookie = `${AUTH_USER}=${encodeURIComponent(JSON.stringify(user))};${base}`;
+}
+
+export function verifyCookie(name: string): boolean {
+  return document.cookie.split(';').some(c => c.trim().startsWith(`${name}=`));
 }

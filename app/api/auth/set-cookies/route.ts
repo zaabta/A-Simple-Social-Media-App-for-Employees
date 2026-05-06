@@ -9,8 +9,18 @@ export async function POST(request: NextRequest) {
 
         const response = NextResponse.json({ success: true });
 
-        response.cookies.set(AUTH_TOKEN, token, SERVER_AUTH_COOKIE_OPTIONS);
-        response.cookies.set(AUTH_USER, JSON.stringify(user), SERVER_AUTH_COOKIE_OPTIONS);
+        // Get the host from the request to set the correct domain
+        const host = request.headers.get('host') || '';
+        // Strip port for local dev (localhost:3000 → localhost)
+        const domain = host.includes(':') ? host.split(':')[0] : host;
+
+        const cookieOptions = {
+            ...SERVER_AUTH_COOKIE_OPTIONS,
+            ...(process.env.NODE_ENV === 'production' && { domain }),
+        };
+
+        response.cookies.set(AUTH_TOKEN, token, cookieOptions);
+        response.cookies.set(AUTH_USER, JSON.stringify(user), cookieOptions);
 
         return response;
     } catch {

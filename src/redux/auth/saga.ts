@@ -10,7 +10,8 @@ import {
   logoutFailure,
 } from './slice';
 import type { LoginPayload } from './types';
-import { ERROR_MESSAGES, INTERNAL_API, PAGE_PATH } from '@/constants';
+import { AUTH_TOKEN, AUTH_USER, ERROR_MESSAGES, PAGE_PATH } from '@/constants';
+import { setCookieDirect, verifyCookie } from '@/utils';
 
 function* loginSaga(action: PayloadAction<LoginPayload>): Generator<any, void, any> {
   try {
@@ -25,18 +26,22 @@ function* loginSaga(action: PayloadAction<LoginPayload>): Generator<any, void, a
       image: response.image,
       gender: response.gender,
     };
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    yield call(fetch, `${baseUrl}${INTERNAL_API.AUTH.SET_COOKIES}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: response.accessToken, user }),
-    });
+
+    // Set cookie directly via document.cookie
+    // secure flag is based on protocol — works on http (local) and https (Vercel)
+    setCookieDirect(response.accessToken, user);
+
+    // Verify it was actually stored
+    const cookieSet: boolean = verifyCookie(AUTH_TOKEN);
+    if (!cookieSet) {
+      throw new Error('Cookie was not stored by browser');
+    }
 
     yield put(loginSuccess(response));
 
-    if (typeof window !== 'undefined') {
-      window.location.href = '/users';
-    }
+    // Use replace instead of href to avoid back-button issues
+    window.location.replace(PAGE_PATH.USERS);
+
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : ERROR_MESSAGES.LOGIN_FAILED;
     yield put(loginFailure(errorMessage));
@@ -49,8 +54,11 @@ function* logoutSaga(): Generator<any, void, any> {
     yield put(logoutSuccess());
 
     if (typeof window !== 'undefined') {
-      yield delay(500);
-      window.location.href = PAGE_PATH.LOGIN;
+      // Clear cookies client-side too
+      document.cookie = `${AUTH_TOKEN}=;path=/;max-age=-1`;
+      document.cookie = `${AUTH_USER}=;path=/;max-age=-1`;
+      yield delay(100);
+      window.location.replace(PAGE_PATH.LOGIN);
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : ERROR_MESSAGES.LOGOUT_FAILED;
