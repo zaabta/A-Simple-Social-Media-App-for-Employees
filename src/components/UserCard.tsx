@@ -1,7 +1,7 @@
+'use client'
 import { GENDER, PAGE_PATH, User_card_FIELD } from "@/constants";
 import Badge, { BadgeColor } from "./Badge";
 import { SingleUser } from '@/types';
-import Link from "next/link";
 
 export type UserCardProps = {
     user: SingleUser;
@@ -11,8 +11,11 @@ export type UserCardProps = {
 export default function UserCard({ user, visibleFields }: UserCardProps) {
     const { firstName, lastName, age, gender, image, email, username, address, company } = user;
     const show = (field: User_card_FIELD) => visibleFields?.includes(field);
+    const handleOnClick = () => {
+        window.location.href = `${PAGE_PATH.USERS + '/' + user.id}`
+    }
     return (
-        <Link href={`${PAGE_PATH.USERS + '/' + user.id}`} className="flex items-left gap-4 bg-white shadow-sm rounded-xl p-2 hover:shadow-md transition pointer-coarse">
+        <div className="flex items-left gap-4 bg-white shadow-sm rounded-xl p-2 hover:shadow-md transition pointer-coarse" onClick={handleOnClick}>
             <div className="w-14 h-14 rounded-lg bg-gray-100">
                 <img className="w-full h-full object-cover rounded-lg" src={image} alt={firstName} />
             </div>
@@ -29,6 +32,6 @@ export default function UserCard({ user, visibleFields }: UserCardProps) {
                     {show(User_card_FIELD.JOB) && <span className="text-xs text-gray-500">{company.title}</span>}
                 </div>
             </div>
-        </Link>
+        </div>
     );
 }
