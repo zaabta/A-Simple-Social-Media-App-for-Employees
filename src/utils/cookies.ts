@@ -1,3 +1,4 @@
+import { AUTH_TOKEN, AUTH_USER } from "@/constants";
 import { CookieOptions } from "../types";
 
 /**
@@ -69,4 +70,14 @@ export function waitForCookie(name: string, maxWaitMs = 3000): Promise<boolean> 
     };
     check();
   });
+}
+
+
+export function setCookieDirect(token: string, user: object) {
+  const maxAge = 7 * 24 * 60 * 60;
+  const isHttps = window.location.protocol === 'https:';
+  const secure = isHttps ? ';Secure' : '';
+  const base = `path=/;max-age=${maxAge};SameSite=Lax${secure}`;
+  document.cookie = `${AUTH_TOKEN}=${encodeURIComponent(token)};${base}`;
+  document.cookie = `${AUTH_USER}=${encodeURIComponent(JSON.stringify(user))};${base}`;
 }
